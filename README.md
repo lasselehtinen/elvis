@@ -19,9 +19,9 @@ Add the service provider and alias in `app/config/app.php`:
         ...
         'Lasselehtinen\Elvis\ElvisServiceProvider'
     ),
-
-Add the aliases in `app/config/app.php`:
     
+And
+
     'aliases' => array(
         ...
         'Elvis'			  => 'Lasselehtinen\Elvis\Facades\Elvis'
