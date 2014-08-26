@@ -1,16 +1,40 @@
-Laravel package for doing REST API queries against Woodwings Elvis DAM (Digital Asset Management)
-
-Installation
+## Installation
 ------------
+
+### Step 1
 
 Add the package to your `composer.json` and run `composer update`.
 
     {
         "require": {
-            "lasselehtinen/elvis": "*"
+            "lasselehtinen/elvis": "dev-master"
         }
     }
 
-Add the service provider in `app/config/app.php`:
+### Step 2
 
-    'Lasselehtinen\Elvis\ElvisServiceProvider',
+Add the service provider and alias in `app/config/app.php`:
+    
+	'providers' => array(
+        ...
+        'Lasselehtinen\Elvis\ElvisServiceProvider'
+    ),
+
+Add the aliases in `app/config/app.php`:
+    
+    'aliases' => array(
+        ...
+        'Elvis'			  => 'Lasselehtinen\Elvis\Facades\Elvis'
+    ),
+
+### Step 3
+Publish the package config file by running:
+
+    php artisan config:publish lasselehtinen/elvis
+    
+Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the default Elvis REST API endpoint URI and the username and password.
+
+## Usage
+
+### Login
+You need to login as the first step. 
