@@ -1,0 +1,26 @@
+{
+    "name": "lasselehtinen/elvis",
+    "description": "Package for doing REST API queries against Woodwings Elvis DAM (Digital Asset Management)",
+    "license": "BSD-2-Clause",
+    "keywords": ["laravel","elvisdam"],
+    "authors": [
+        {
+            "name": "Lasse Lehtinen",
+            "email": "lasse.lehtinen@iki.fi"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*",
+        "nategood/httpful": "*"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Lasselehtinen\\Elvis\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
