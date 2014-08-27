@@ -1,7 +1,7 @@
-## Installation
+# Installation
 ------------
 
-### Step 1
+## Step 1
 
 Add the package to your `composer.json` and run `composer update`.
 
@@ -11,7 +11,7 @@ Add the package to your `composer.json` and run `composer update`.
         }
     }
 
-### Step 2
+## Step 2
 
 Add the service provider and alias in `app/config/app.php`:
     
@@ -27,22 +27,29 @@ And
         'Elvis'			  => 'Lasselehtinen\Elvis\Facades\Elvis'
     ),
 
-### Step 3
+## Step 3
 Publish the package config file by running:
 
     php artisan config:publish lasselehtinen/elvis
     
 Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the default Elvis REST API endpoint URI and the username and password.
 
-## Usage
+# Usage
 
-### Login
+## List of functions
+
+ - [Login](#login)
+ - [Browse](#browse)
+ - [Search](#search)
+ - [Logout](#logout)
+
+### <a name="login">Login</a>
 You need to login as the first step. Store the session_id returned by the function and pass it to further requests.
 
     $session_id = Elvis::login();
     $search_results = Elvis::search($session_id, 'gtin:9789510123454');
 
-### Browse
+### <a name="browse">Browse</a>
 This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client. Read more at https://elvis.tenderapp.com/kb/api/rest-browse.
 
 > Note: Even though it is possible to return the assets in folders, doing so is not advised. The browse call does not limit the number of results, so if there are 10000 assets in a folder it will return all of them. It is better to use a search to find the assets in a folder and fetch them in pages.
@@ -58,7 +65,7 @@ includeFolders | Indicates if folders should be returned.
 includeAsset | Indicates if files should be returned.
 includeExtensions | A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
 			
-### Search
+### <a name="search">Search</a>
 Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. You can find details about the function parameters below.
 
 **Simple search:**
@@ -75,7 +82,7 @@ sort | The sort order of returned hits. Comma-delimited list of fields to sort o
 metadataToReturn | Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 appendRequestSecret | When set to true will append an encrypted code to the thumbnail, preview and original URLs.
 
-### Logout
+### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.
 
     $logout = Elvis::logout($session_id);
