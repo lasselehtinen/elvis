@@ -43,7 +43,7 @@ You need to login as the first step. Store the session_id returned by the functi
     $search_results = Elvis::search($session_id, 'gtin:9789510123454');
 
 ### Search
-Wrapper for the search API, returns the hits found. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. You can find details about the function parameters below.
+Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. You can find details about the function parameters below.
 
 **Simple search:**
 
@@ -58,4 +58,10 @@ num | Number of hits to return. Specify 0 to return no hits, this can be useful 
 sort | The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 metadataToReturn | Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 appendRequestSecret | When set to true will append an encrypted code to the thumbnail, preview and original URLs.
+
+### Logout
+It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.
+
+    $logout = Elvis::logout($session_id);
+   
 
