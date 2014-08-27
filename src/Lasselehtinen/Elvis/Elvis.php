@@ -54,7 +54,7 @@ class Elvis {
 		$uri = Config::get('elvis::api_endpoint_uri') . 'logout;jsessionid=' . $session_id;
 		$response = \Httpful\Request::get($uri)->send();
 
-		// Check we get an error code
+		// Check if get an errorcode in the response
 		if(isset($response->body->errorcode))
 		{
 			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
@@ -73,7 +73,7 @@ class Elvis {
 	 * @param (string) (sort) The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 	 * @param (string) (metadataToReturn) Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 	 * @param (bool) (appendRequestSecret) When set to true will append an encrypted code to the thumbnail, preview and original URLs.
-	 * @return (array) List of search results	 
+	 * @return (object) List of search results	 
 	 */
 	public static function search($session_id, $q, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false)
 	{
@@ -91,7 +91,7 @@ class Elvis {
 		$uri = Config::get('elvis::api_endpoint_uri') . 'search;jsessionid=' . $session_id . '?' . http_build_query($search_parameters);
 		$response = \Httpful\Request::get($uri)->send();
 
-		// Check we get an error code
+		// Check if get an errorcode in the response
 		if(isset($response->body->errorcode))
 		{
 			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
@@ -105,6 +105,7 @@ class Elvis {
 	*
 	* This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client.
 	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
 	* @param (string) (path) The path to the folder in Elvis you want to list.
 	* @param (string) (fromRoot) Allows returning multiple levels of folders with their children. When specified, this path is listed, and all folders below it up to the 'path' will have their children returned as well.
 	* @param (bool) (includeFolders) Indicates if folders should be returned. Optional. Default is true.
@@ -126,7 +127,68 @@ class Elvis {
 		// Call browse REST API
 		$uri = Config::get('elvis::api_endpoint_uri') . 'browse;jsessionid=' . $session_id . '?' . http_build_query($browse_parameters);
 		$response = \Httpful\Request::get($uri)->send();
+
+		// Check if get an errorcode in the response
+		if(isset($response->body->errorcode))
+		{
+			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
+		}
   		
   		return $response->body;
 	}
+
+	/**
+	* Profile
+	*
+	* Retrieve details about the user authenticated in the current browser session.
+	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
+	* @return (object) Profile attached to the session
+	*/
+ 	public static function profile($session_id)
+  	{    	
+		// Call login REST API
+		$uri = Config::get('elvis::api_endpoint_uri') . 'profile;jsessionid=' . $session_id;
+		$response = \Httpful\Request::get($uri)->send();
+
+		// Check if get an errorcode in the response
+		if(isset($response->body->errorcode))
+		{
+			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
+		}
+
+		return $response->body;
+	}
+
+	/**
+	* Create
+	*
+	* Upload and create an asset.
+	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
+	* @param (string) (Filedata) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+	* @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+
+	* @return (object) Profile attached to the session
+	*/
+ 	public static function create($session_id, $Filedata, $metadata)
+  	{    
+		// Form create parameters
+		$create_parameters = array(
+			'metadata'			=> json_encode($metadata)
+		);
+
+		// Call login REST API
+		$uri = Config::get('elvis::api_endpoint_uri') . 'create;jsessionid=' . $session_id . '?' . http_build_query($create_parameters);
+		$response = \Httpful\Request::get($uri)->attach(array($Filedata))->send();
+
+		// Check if get an errorcode in the response
+		if(isset($response->body->errorcode))
+		{
+			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
+		}
+
+		return $response->body;
+	}
+
 }
