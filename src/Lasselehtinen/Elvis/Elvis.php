@@ -7,7 +7,7 @@
 class Elvis {
  
 	/**
-	* login
+	* Login
 	*
 	* Logins to Elvis with the credentials stored in the config
 	*
@@ -41,6 +41,29 @@ class Elvis {
 	}
 
 	/**
+	* Logout
+	*
+	* Logouts from Elvis with the given session id
+	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
+	* @return (bool) (logoutSuccess) True if logout was succesfull
+	*/
+ 	public static function logout($session_id)
+  	{      		
+		// Call logout REST API
+		$uri = Config::get('elvis::api_endpoint_uri') . 'logout;jsessionid=' . $session_id;
+		$response = \Httpful\Request::get($uri)->send();
+
+		// Check we get an error code
+		if(isset($response->body->errorcode))
+		{
+			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
+		}
+
+		return $response->body->logoutSuccess;
+	}
+
+	/**
 	 * Search
 	 *
 	 * @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
@@ -56,7 +79,7 @@ class Elvis {
 	{
 		// Form search parameters
 		$search_parameters = array(
-			'q'						=>	$q,
+			'q'						=> $q,
 		  	'start'					=> $start,
 		  	'num'					=> $num,
 		  	'sort'					=> $sort,
@@ -64,12 +87,46 @@ class Elvis {
 		  	'appendRequestSecret'	=> $appendRequestSecret
 		);
 
-		print_r($search_parameters);
-		
 		// Call login REST API
-		$uri = Config::get('elvis::api_endpoint_uri') . 'search' . ";jsessionid=" . $session_id . '?' . http_build_query($search_parameters) ;
+		$uri = Config::get('elvis::api_endpoint_uri') . 'search;jsessionid=' . $session_id . '?' . http_build_query($search_parameters);
 		$response = \Httpful\Request::get($uri)->send();
-		var_dump($response->body);
+
+		// Check we get an error code
+		if(isset($response->body->errorcode))
+		{
+			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
+		}
+		
+		return $response->body;
 	}
- 
+
+	/**
+	* Browse
+	*
+	* This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client.
+	*
+	* @param (string) (path) The path to the folder in Elvis you want to list.
+	* @param (string) (fromRoot) Allows returning multiple levels of folders with their children. When specified, this path is listed, and all folders below it up to the 'path' will have their children returned as well.
+	* @param (bool) (includeFolders) Indicates if folders should be returned. Optional. Default is true.
+	* @param (bool) (includeAsset) Indicates if files should be returned. Optional. Default is true, but filtered to only include 'container' assets.
+	* @param (string) (includeExtensions) A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
+	* @return (object) (results) An array of folders and assets. 
+	*/
+ 	public static function browse($session_id, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
+  	{      		
+		// Form browse parameters
+		$browse_parameters = array(
+			'path'				=> $path,
+			'fromRoot'			=> $fromRoot,
+			'includeFolders'	=> $includeFolders,
+			'includeAsset'		=> $includeAsset,
+			'includeExtensions'	=> $includeExtensions
+		);
+
+		// Call browse REST API
+		$uri = Config::get('elvis::api_endpoint_uri') . 'browse;jsessionid=' . $session_id . '?' . http_build_query($browse_parameters);
+		$response = \Httpful\Request::get($uri)->send();
+  		
+  		return $response->body;
+	}
 }
