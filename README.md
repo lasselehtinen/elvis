@@ -42,6 +42,22 @@ You need to login as the first step. Store the session_id returned by the functi
     $session_id = Elvis::login();
     $search_results = Elvis::search($session_id, 'gtin:9789510123454');
 
+### Browse
+This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client. Read more at https://elvis.tenderapp.com/kb/api/rest-browse.
+
+> Note: Even though it is possible to return the assets in folders, doing so is not advised. The browse call does not limit the number of results, so if there are 10000 assets in a folder it will return all of them. It is better to use a search to find the assets in a folder and fetch them in pages.
+
+    $browse_results = Elvis::browse($session_id, '/Folder/');
+
+Parameter | Description
+--------- | -----------
+session_id| Session ID returned by the login function.
+path | The path to the folder in Elvis you want to list. Path is automatically encoded.
+fromRoot | Allows returning multiple levels of folders with their children. When specified, this path is listed, and all folders below it up to the 'path' will have their children returned as well. This ability can be used to initialize an initial path in a column tree folder browser with one server call.
+includeFolders | Indicates if folders should be returned.
+includeAsset | Indicates if files should be returned.
+includeExtensions | A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
+			
 ### Search
 Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. You can find details about the function parameters below.
 
