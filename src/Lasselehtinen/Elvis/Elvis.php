@@ -167,7 +167,7 @@ class Elvis {
 	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
 	* @param (string) (q) A query matching the assets that should be updated
 	* @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
-	* @param (bool) (async) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+	* @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
 	* @return (object) Either processedCount or processId depending if async is true or false
 	*/
  	public static function updatebulk($session_id, $query, $metadata, $async = false)
@@ -183,6 +183,40 @@ class Elvis {
 
 		return $response->body;
 	}
+
+	/**
+	* Move / rename
+	*
+	* Move or rename a folder or a single asset.
+	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
+	* @param (string) (source) Either a folderPath or assetPath of the folder or asset to be moved or renamed.
+	* @param (string) (target) The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
+	* @param (string) (folderReplacePolicy) Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
+	* @param (string) (fileReplacePolicy) Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING 
+	* @param (string) (filterQuery) When specified, only source assets that match this query will be moved.
+	* @param (bool) (flattenFolders) When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
+	* @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+	* @return (object) Either processedCount or processId depending if async is true or false
+	*/
+ 	public static function move($session_id, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
+ 	{
+ 		// Form move parameters
+		$move_parameters = array(
+			'source' 				=> $source,
+			'target' 				=> $target,
+			'folderReplacePolicy'	=> $folderReplacePolicy,
+			'fileReplacePolicy'		=> $fileReplacePolicy,
+			'filterQuery'			=> $filterQuery,
+			'flattenFolders'		=> $flattenFolders,
+			'async'					=> $async
+		);
+
+ 		// Do the query
+		$response = Elvis::query($session_id, 'move', $move_parameters);
+
+		return $response->body;
+ 	}
 
 	/**
 	* REST call
@@ -204,26 +238,21 @@ class Elvis {
 		$uri_parts['method'] = $endpoint;
 
 		// Add session if needed, basically everything else except login
-		if($session_id !== null)
-		{
+		if($session_id !== null) {
 			$uri_parts['jsessionid'] = ';jsessionid=' . $session_id;
 		}
 
 		// Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
-		if($parameters !== null || $metadata !== null)
-		{
+		if($parameters !== null || $metadata !== null) {
 			$uri_parts['parameters_separator'] = '?';
 			$query_parameters = array();
 		}
 
 		// Add normal key=value parameters if needed, basically everything else except logout
-		if($parameters !== null)
-		{
+		if($parameters !== null) {
 			// In case we have boolean parameters, we have to type cast those to strings.
-			foreach($parameters as $key => $value)
-			{
-    			if(is_bool($value))
-    			{
+			foreach($parameters as $key => $value) {
+    			if(is_bool($value)) {
         			$parameters[$key] = ($value) ? 'true' : 'false';
     			}
     		}
@@ -232,15 +261,13 @@ class Elvis {
 		}
 
 		// Add metadata='JSON encoded values' 
-		if($metadata !== null)
-		{
+		if($metadata !== null) {
 			$json_metadata = array('metadata' => json_encode($metadata));
 			$query_parameters = array_merge($query_parameters, $json_metadata);
 		}
 
 		// Build query if necessary
-		if(isset($query_parameters))
-		{
+		if(isset($query_parameters)) {
 			$uri_parts['parameters'] = http_build_query($query_parameters);
 		}
 
@@ -248,30 +275,25 @@ class Elvis {
 		$uri = implode($uri_parts);
 
 		// Call REST API 
-		if($filename !== null)	// If filename is given, we have to attach it (create method)
-		{
+		if($filename !== null) {
+			// If filename is given, we have to attach it (create method)
 			$response = \Httpful\Request::post($uri)->attach(array('Filedata' => $filename))->send();
-		}
-		else
-		{
+		} else {
 			$response = \Httpful\Request::get($uri)->send();			
 		}
 
 		// Check if get 404
-		if($response->code == 404)
-		{
+		if($response->code == 404) {
 			App::abort($response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
 		}
 
 		// For login, check if get error
-		if(isset($response->body->loginSuccess) && $response->body->loginSuccess === false)
-		{
+		if(isset($response->body->loginSuccess) && $response->body->loginSuccess === false){
 			App::abort($response->code, $response->body->loginFaultMessage);
 		}
 
 		// Check if get an errorcode in the response
-		if(isset($response->body->errorcode))
-		{
+		if(isset($response->body->errorcode)){
 			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
 		}
 

@@ -45,6 +45,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Create](#create)
  - [Update](#update)
  - [Updatebulk](#updatebulk)
+ - [Move / rename](#move)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -129,6 +130,28 @@ session_id | Session ID returned by the login function. This is used for further
 q|A query matching the assets that should be updated
 metadata | Array containing the metadata for the assets as an array. Key is the metadata field name and value is the actual value.
 async| When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+
+Returns either processedCount or processId depending on the value of async.
+
+### <a name="move">Move / rename</a>
+Move or rename a folder or a single asset. You can combine a rename operation and a move operation. Just specify the new target path.
+
+When you move or rename a folder, all assets contained in the folder will also be moved to the new location. The subfolder structure will be kept intact.
+
+    $rename = Elvis::move($session_id, '/Path/to/asset/filename.ext', '/Path/to/asset/new-filename.ext');
+
+Parameter | Description
+--------- | -----------
+session_id | Session ID returned by the login function. This is used for further queries towards Elvis
+source | Either a folderPath or assetPath of the folder or asset to be moved or renamed.
+target | The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
+folderReplacePolicy | Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
+fileReplacePolicy | Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING 
+filterQuery | When specified, only source assets that match this query will be moved.
+flattenFolders | When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
+async | When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+
+Please see  https://elvis.tenderapp.com/kb/api/rest-move-rename for more information about the folderReplacePolicy and fileReplacePolicy.
 
 Returns either processedCount or processId depending on the value of async.
    
