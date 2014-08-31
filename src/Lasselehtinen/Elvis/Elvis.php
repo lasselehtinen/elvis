@@ -148,6 +148,7 @@ class Elvis {
 	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
 	* @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
 	* @param (array) (parameters) All query parameters
+	* @param (string) (json_encoded_metadata) JSON encoded query parameters
 	* @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
 	* @return (object) Query response or exception if something went wrong
 	*/	
