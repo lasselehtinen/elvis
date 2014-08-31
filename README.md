@@ -44,6 +44,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Profile](#profile)
  - [Create](#create)
  - [Update](#update)
+ - [Updatebulk](#updatebulk)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -114,6 +115,22 @@ session_id | Session ID returned by the login function. This is used for further
 id|Elvis asset id to be updated
 filename | The file that will replace the current file. Define as null if you just want to update metadata.
 metadata | Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+
+### <a name="update">Updatebulk</a>
+This call updates the metadata of multiple existing assets in Elvis.
+
+*Available since Elvis 3.1*
+
+    $updatebulk = Elvis::updatebulk($session_id, 'tags:animal', array('status' => 'Correction'));
+
+Parameter | Description
+--------- | -----------
+session_id | Session ID returned by the login function. This is used for further queries towards Elvis
+q|A query matching the assets that should be updated
+metadata | Array containing the metadata for the assets as an array. Key is the metadata field name and value is the actual value.
+async| When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+
+Returns either processedCount or processId depending on the value of async.
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.

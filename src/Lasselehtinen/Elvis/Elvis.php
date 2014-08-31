@@ -126,7 +126,7 @@ class Elvis {
 	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
 	* @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
 	* @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
-	* @return (object) Profile attached to the session
+	* @return (object) Information about the newly created asset
 	*/
  	public static function create($session_id, $filename, $metadata)
   	{    
@@ -145,7 +145,7 @@ class Elvis {
 	* @param (string) (id) Elvis asset id to be updated
 	* @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
 	* @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
-	* @return (object) Profile attached to the session
+	* @return (object) Elvis returns something strange, TODO investigate it
 	*/
  	public static function update($session_id, $id, $filename, $metadata)
   	{    
@@ -155,6 +155,31 @@ class Elvis {
 		);
 
 		$response = Elvis::query($session_id, 'update', $update_parameters, $metadata, $filename);
+
+		return $response->body;
+	}
+
+	/**
+	* Updatebulk
+	*
+	* This call updates the metadata of multiple existing assets in Elvis.
+	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
+	* @param (string) (q) A query matching the assets that should be updated
+	* @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+	* @param (bool) (async) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+	* @return (object) Either processedCount or processId depending if async is true or false
+	*/
+ 	public static function updatebulk($session_id, $query, $metadata, $async = false)
+ 	{
+ 		// Form updatebulk parameters
+		$updatebulk_parameters = array(
+			'q' 	=> $query,
+			'async' => $async
+		);
+
+ 		// Do the query
+		$response = Elvis::query($session_id, 'updatebulk', $updatebulk_parameters, $metadata);
 
 		return $response->body;
 	}
@@ -194,6 +219,15 @@ class Elvis {
 		// Add normal key=value parameters if needed, basically everything else except logout
 		if($parameters !== null)
 		{
+			// In case we have boolean parameters, we have to type cast those to strings.
+			foreach($parameters as $key => $value)
+			{
+    			if(is_bool($value))
+    			{
+        			$parameters[$key] = ($value) ? 'true' : 'false';
+    			}
+    		}
+
 			$query_parameters = array_merge($query_parameters, $parameters);
 		}
 
