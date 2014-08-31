@@ -21,21 +21,7 @@ class Elvis {
 		  	'password'	=>	Config::get('elvis::password')
 		);
   		
-		// Call login REST API
-		$uri = Config::get('elvis::api_endpoint_uri') . 'login?' . http_build_query($login_parameters);
-		$response = \Httpful\Request::get($uri)->send();
-
-		// Check that URL does not return 404
-		if($response->code === 404)
-		{
-			App::abort(404, 'API endpoint URL returned code 404 (Not found): ' . Config::get('elvis::api_endpoint_uri'));
-		}
-
-		// Check if login was false
-		if($response->body->loginSuccess === false)
-		{
-			App::abort(403, 'Login failed: ' . $response->body->loginFaultMessage);
-		}
+  		$response = Elvis::query(null, 'login', $login_parameters);
 
 		return $response->body->sessionId;
 	}
@@ -51,14 +37,7 @@ class Elvis {
  	public static function logout($session_id)
   	{      		
 		// Call logout REST API
-		$uri = Config::get('elvis::api_endpoint_uri') . 'logout;jsessionid=' . $session_id;
-		$response = \Httpful\Request::get($uri)->send();
-
-		// Check if get an errorcode in the response
-		if(isset($response->body->errorcode))
-		{
-			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
-		}
+		$response = Elvis::query($session_id, 'logout');
 
 		return $response->body->logoutSuccess;
 	}
@@ -87,15 +66,8 @@ class Elvis {
 		  	'appendRequestSecret'	=> $appendRequestSecret
 		);
 
-		// Call login REST API
-		$uri = Config::get('elvis::api_endpoint_uri') . 'search;jsessionid=' . $session_id . '?' . http_build_query($search_parameters);
-		$response = \Httpful\Request::get($uri)->send();
-
-		// Check if get an errorcode in the response
-		if(isset($response->body->errorcode))
-		{
-			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
-		}
+		// Call the search REST API
+		$response = Elvis::query($session_id, 'search', $search_parameters);
 		
 		return $response->body;
 	}
@@ -125,14 +97,7 @@ class Elvis {
 		);
 
 		// Call browse REST API
-		$uri = Config::get('elvis::api_endpoint_uri') . 'browse;jsessionid=' . $session_id . '?' . http_build_query($browse_parameters);
-		$response = \Httpful\Request::get($uri)->send();
-
-		// Check if get an errorcode in the response
-		if(isset($response->body->errorcode))
-		{
-			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
-		}
+		$response = Elvis::query($session_id, 'browse', $browse_parameters);
   		
   		return $response->body;
 	}
@@ -147,15 +112,8 @@ class Elvis {
 	*/
  	public static function profile($session_id)
   	{    	
-		// Call login REST API
-		$uri = Config::get('elvis::api_endpoint_uri') . 'profile;jsessionid=' . $session_id;
-		$response = \Httpful\Request::get($uri)->send();
-
-		// Check if get an errorcode in the response
-		if(isset($response->body->errorcode))
-		{
-			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
-		}
+		// Call profile REST API
+		$response = Elvis::query($session_id, 'profile');
 
 		return $response->body;
 	}
@@ -166,21 +124,88 @@ class Elvis {
 	* Upload and create an asset.
 	*
 	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
-	* @param (string) (Filedata) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+	* @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
 	* @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
-
 	* @return (object) Profile attached to the session
 	*/
- 	public static function create($session_id, $Filedata, $metadata)
+ 	public static function create($session_id, $filename, $metadata)
   	{    
 		// Form create parameters
 		$create_parameters = array(
 			'metadata'			=> json_encode($metadata)
 		);
 
-		// Call login REST API
-		$uri = Config::get('elvis::api_endpoint_uri') . 'create;jsessionid=' . $session_id . '?' . http_build_query($create_parameters);
-		$response = \Httpful\Request::get($uri)->attach(array($Filedata))->send();
+		$response = Elvis::query($session_id, 'create', null, $create_parameters, $filename);
+
+		return $response->body;
+	}
+
+	/**
+	* REST call
+	*
+	* Performs the actual REST query
+	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
+	* @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
+	* @param (array) (parameters) All query parameters
+	* @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+	* @return (object) Query response or exception if something went wrong
+	*/	
+	public static function query($session_id = null, $endpoint, $parameters = null, $json_encoded_metadata = null, $filename = null)
+	{
+		// Form basic URI
+		$uri_parts = array();
+		$uri_parts['base_url'] = Config::get('elvis::api_endpoint_uri');
+		$uri_parts['method'] = $endpoint;
+
+		// Add session if needed, basically everything else except login
+		if($session_id !== null)
+		{
+			$uri_parts['jsessionid'] = ';jsessionid=' . $session_id;
+		}
+
+		// Add separator if either parameters or JSON encoded parameter 'metadata' is present
+		if($parameters !== null || $json_encoded_metadata !== null)
+		{
+			$uri_parts['parameters_separator'] = '?';
+		}
+
+		// Add normal key=value parameters if needed, basically everything else except logout
+		if($parameters !== null)
+		{
+			$uri_parts['parameters'] = http_build_query($parameters);
+		}
+
+		// Add metadata='JSON encoded values' 
+		if($json_encoded_metadata !== null)
+		{
+			$uri_parts['json_encoded_metadata'] = http_build_query($json_encoded_metadata);
+		}
+
+		// Form complete URI by imploding the array
+		$uri = implode($uri_parts);
+
+		// Call REST API 
+		if($filename !== null)	// If filename is given, we have to attach it (create method)
+		{
+			$response = \Httpful\Request::get($uri)->attach(array($filename))->send();	
+		}
+		else
+		{
+			$response = \Httpful\Request::get($uri)->send();
+		}
+
+		// Check if get 404
+		if($response->code == 404)
+		{
+			App::abort($response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
+		}
+
+		// For login, check if get error
+		if(isset($response->body->loginSuccess) && $response->body->loginSuccess === false)
+		{
+			App::abort($response->code, $response->body->loginFaultMessage);
+		}
 
 		// Check if get an errorcode in the response
 		if(isset($response->body->errorcode))
@@ -188,7 +213,7 @@ class Elvis {
 			App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
 		}
 
-		return $response->body;
+		// Return the API JSON response as object
+		return $response;
 	}
-
 }

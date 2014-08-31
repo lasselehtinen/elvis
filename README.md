@@ -99,7 +99,7 @@ This call will create a new asset in Elvis. It can be used to upload files into 
 Parameter | Description
 --------- | -----------
 session_id| Session ID returned by the login function.
-Filedata|The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used. Please note that in this case, you give the local filepath as a parameter. The wrapper will then convert it multipart/file.
+filename|The local filename to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used. Please note that in this case, you give the local filepath as a parameter. The wrapper will then convert it multipart/file.
 metadata|Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
    
 ### <a name="logout">Logout</a>
