@@ -130,12 +130,31 @@ class Elvis {
 	*/
  	public static function create($session_id, $filename, $metadata)
   	{    
-		// Form create parameters
-		$create_parameters = array(
-			'metadata'			=> json_encode($metadata)
+
+		$response = Elvis::query($session_id, 'create', null, $metadata, $filename);
+
+		return $response->body;
+	}
+
+	/**
+	* Update
+	*
+	* Upload and create an asset.
+	*
+	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
+	* @param (string) (id) Elvis asset id to be updated
+	* @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+	* @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+	* @return (object) Profile attached to the session
+	*/
+ 	public static function update($session_id, $id, $filename, $metadata)
+  	{    
+		// Form update parameters
+		$update_parameters = array(
+			'id'				=> $id,
 		);
 
-		$response = Elvis::query($session_id, 'create', null, $create_parameters, $filename);
+		$response = Elvis::query($session_id, 'update', $update_parameters, $metadata, $filename);
 
 		return $response->body;
 	}
@@ -148,11 +167,11 @@ class Elvis {
 	* @param (string) (session_id) Session ID returned by the login function. This is used for further queries towards Elvis
 	* @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
 	* @param (array) (parameters) All query parameters
-	* @param (string) (json_encoded_metadata) JSON encoded query parameters
+	* @param (array) (metadata) Query parameters that will be converted to JSON array
 	* @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
 	* @return (object) Query response or exception if something went wrong
 	*/	
-	public static function query($session_id = null, $endpoint, $parameters = null, $json_encoded_metadata = null, $filename = null)
+	public static function query($session_id = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
 	{
 		// Form basic URI
 		$uri_parts = array();
@@ -165,22 +184,30 @@ class Elvis {
 			$uri_parts['jsessionid'] = ';jsessionid=' . $session_id;
 		}
 
-		// Add separator if either parameters or JSON encoded parameter 'metadata' is present
-		if($parameters !== null || $json_encoded_metadata !== null)
+		// Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
+		if($parameters !== null || $metadata !== null)
 		{
 			$uri_parts['parameters_separator'] = '?';
+			$query_parameters = array();
 		}
 
 		// Add normal key=value parameters if needed, basically everything else except logout
 		if($parameters !== null)
 		{
-			$uri_parts['parameters'] = http_build_query($parameters);
+			$query_parameters = array_merge($query_parameters, $parameters);
 		}
 
 		// Add metadata='JSON encoded values' 
-		if($json_encoded_metadata !== null)
+		if($metadata !== null)
 		{
-			$uri_parts['json_encoded_metadata'] = http_build_query($json_encoded_metadata);
+			$json_metadata = array('metadata' => json_encode($metadata));
+			$query_parameters = array_merge($query_parameters, $json_metadata);
+		}
+
+		// Build query if necessary
+		if(isset($query_parameters))
+		{
+			$uri_parts['parameters'] = http_build_query($query_parameters);
 		}
 
 		// Form complete URI by imploding the array
@@ -189,11 +216,11 @@ class Elvis {
 		// Call REST API 
 		if($filename !== null)	// If filename is given, we have to attach it (create method)
 		{
-			$response = \Httpful\Request::get($uri)->attach(array($filename))->send();	
+			$response = \Httpful\Request::post($uri)->attach(array('Filedata' => $filename))->send();
 		}
 		else
 		{
-			$response = \Httpful\Request::get($uri)->send();
+			$response = \Httpful\Request::get($uri)->send();			
 		}
 
 		// Check if get 404

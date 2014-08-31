@@ -36,13 +36,14 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
 
 # Usage
 
-## List of functions
+## List of supported functions
 
  - [Login](#login)
  - [Browse](#browse)
  - [Search](#search)
  - [Profile](#profile)
  - [Create](#create)
+ - [Update](#Update)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -101,6 +102,18 @@ Parameter | Description
 session_id| Session ID returned by the login function.
 filename|The local filename to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used. Please note that in this case, you give the local filepath as a parameter. The wrapper will then convert it multipart/file.
 metadata|Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+
+### <a name="update">Update</a>
+This call updates an existing asset in Elvis with a new file. It can also be used to update metadata. Works pretty much the same ways a create. Only difference is that you given additional parameter, the asset id. Read more at https://elvis.tenderapp.com/kb/api/rest-update.
+
+    $update = Elvis::update($session_id, '1_OSDdstqxbACb97Vd-ret', null, array('Description' => 'Nice view'));
+
+Parameter | Description
+--------- | -----------
+session_id | Session ID returned by the login function. This is used for further queries towards Elvis
+id|Elvis asset id to be updated
+filename | The file that will replace the current file. Define as null if you just want to update metadata.
+metadata | Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.
