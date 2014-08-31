@@ -43,7 +43,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Search](#search)
  - [Profile](#profile)
  - [Create](#create)
- - [Update](#Update)
+ - [Update](#update)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
