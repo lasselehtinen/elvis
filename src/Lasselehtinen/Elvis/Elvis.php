@@ -58,12 +58,12 @@ class Elvis
     {
         // Form search parameters
         $searchParameters = array(
-            'q'                        => $q,
-              'start'                    => $start,
-              'num'                    => $num,
-              'sort'                    => $sort,
-              'metadataToReturn'        => $metadataToReturn,
-              'appendRequestSecret'    => $appendRequestSecret
+            'q'                     => $q,
+            'start'                 => $start,
+            'num'                   => $num,
+            'sort'                  => $sort,
+            'metadataToReturn'      => $metadataToReturn,
+            'appendRequestSecret'   => $appendRequestSecret
         );
 
         // Call the search REST API
@@ -89,11 +89,11 @@ class Elvis
       {
         // Form browse parameters
         $browseParameters = array(
-            'path'                => $path,
-            'fromRoot'            => $fromRoot,
+            'path'              => $path,
+            'fromRoot'          => $fromRoot,
             'includeFolders'    => $includeFolders,
             'includeAsset'      => $includeAsset,
-            'includeExtensions'    => $includeExtensions
+            'includeExtensions' => $includeExtensions
         );
 
         // Call browse REST API
