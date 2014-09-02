@@ -13,8 +13,8 @@ class Elvis
     *
     * @return (string) Session ID for further queries
     */
-     public function login()
-      {
+    public function login()
+    {
         // Form login parameters
         $loginParameters = array(
             'username' => Config::get('elvis::username'),
@@ -34,8 +34,8 @@ class Elvis
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @return (bool) (logoutSuccess) True if logout was succesfull
     */
-     public function logout($sessionId)
-      {
+    public function logout($sessionId)
+    {
         // Call logout REST API
         $response = Elvis::query($sessionId, 'logout');
 
@@ -85,8 +85,8 @@ class Elvis
     * @param (string) (includeExtensions) A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
     * @return (object) (results) An array of folders and assets.
     */
-     public function browse($sessionId, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
-      {
+    public function browse($sessionId, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
+    {
         // Form browse parameters
         $browseParameters = array(
             'path'              => $path,
@@ -110,8 +110,8 @@ class Elvis
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @return (object) Profile attached to the session
     */
-     public function profile($sessionId)
-      {
+    public function profile($sessionId)
+    {
         // Call profile REST API
         $response = Elvis::query($sessionId, 'profile');
 
@@ -128,8 +128,8 @@ class Elvis
     * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
     * @return (object) Information about the newly created asset
     */
-     public function create($sessionId, $filename, $metadata)
-      {
+    public function create($sessionId, $filename, $metadata)
+    {
 
         $response = Elvis::query($sessionId, 'create', null, $metadata, $filename);
 
@@ -147,8 +147,8 @@ class Elvis
     * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
     * @return (object) Elvis returns something strange, TODO investigate it
     */
-     public function update($sessionId, $id, $filename, $metadata)
-      {
+    public function update($sessionId, $id, $filename, $metadata)
+    {
         // Form update parameters
         $updateParameters = array(
             'id' => $id,
@@ -170,8 +170,8 @@ class Elvis
     * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
     * @return (object) Either processedCount or processId depending if async is true or false
     */
-     public function updatebulk($sessionId, $query, $metadata, $async = false)
-     {
+    public function updatebulk($sessionId, $query, $metadata, $async = false)
+    {
          // Form updatebulk parameters
         $updateBulk = array(
             'q'        => $query,
@@ -199,8 +199,8 @@ class Elvis
     * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
     * @return (object) Either processedCount or processId depending if async is true or false
     */
-     public function move($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
-     {
+    public function move($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
+    {
          // Form move parameters
         $moveParameters = array(
             'source'                => $source,
@@ -216,7 +216,7 @@ class Elvis
         $response = Elvis::query($sessionId, 'move', $moveParameters);
 
         return $response->body;
-     }
+    }
 
     /**
     * REST call
