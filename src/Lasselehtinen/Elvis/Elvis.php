@@ -45,6 +45,8 @@ class Elvis
     /**
      * Search
      *
+     * Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. 
+     *
      * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
      * @param (string) (q) Actual Lucene query, you can find more details in https://elvis.tenderapp.com/kb/technical/query-syntax
      * @param (int) (start) First hit to be returned. Starting at 0 for the first hit. Used to skip hits to return 'paged' results. Default is 0.
@@ -172,7 +174,7 @@ class Elvis
     */
     public function updatebulk($sessionId, $query, $metadata, $async = false)
     {
-         // Form updatebulk parameters
+        // Form updatebulk parameters
         $updateBulk = array(
             'q'        => $query,
             'async'    => $async
@@ -196,13 +198,45 @@ class Elvis
     * @param (string) (fileReplacePolicy) Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING
     * @param (string) (filterQuery) When specified, only source assets that match this query will be moved.
     * @param (bool) (flattenFolders) When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
-    * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
     * @return (object) Either processedCount or processId depending if async is true or false
     */
-    public function move($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
+    public function move($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false)
     {
          // Form move parameters
         $moveParameters = array(
+            'source'                => $source,
+            'target'                => $target,
+            'folderReplacePolicy'   => $folderReplacePolicy,
+            'fileReplacePolicy'     => $fileReplacePolicy,
+            'filterQuery'           => $filterQuery,
+            'flattenFolders'        => $flattenFolders
+        );
+
+         // Do the query
+        $response = Elvis::query($sessionId, 'move', $moveParameters);
+
+        return $response->body;
+    }
+    
+    /**
+    * Copy
+    *
+    * Copy a folder or a single asset.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (source) Either a folderPath or assetPath of the folder or asset to be moved or renamed.
+    * @param (string) (target) The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
+    * @param (string) (folderReplacePolicy) Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
+    * @param (string) (fileReplacePolicy) Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING
+    * @param (string) (filterQuery) When specified, only source assets that match this query will be moved.
+    * @param (bool) (flattenFolders) When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
+    * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+    * @return (object) Either processedCount or processId depending if async is true or false
+    */
+    public function copy($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
+    {
+         // Form copy parameters
+        $copyParameters = array(
             'source'                => $source,
             'target'                => $target,
             'folderReplacePolicy'   => $folderReplacePolicy,
@@ -213,11 +247,10 @@ class Elvis
         );
 
          // Do the query
-        $response = Elvis::query($sessionId, 'move', $moveParameters);
+        $response = Elvis::query($sessionId, 'copy', $copyParameters);
 
         return $response->body;
     }
-
     /**
     * REST call
     *
@@ -303,7 +336,6 @@ class Elvis
                     $parameters[$key] = ($value) ? 'true' : 'false';
                 }
             }
-
             $queryParameters = array_merge($queryParameters, $parameters);
         }
 
