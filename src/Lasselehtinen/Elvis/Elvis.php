@@ -45,7 +45,7 @@ class Elvis
     /**
      * Search
      *
-     * Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. 
+     * Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search.
      *
      * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
      * @param (string) (q) Actual Lucene query, you can find more details in https://elvis.tenderapp.com/kb/technical/query-syntax
@@ -217,7 +217,7 @@ class Elvis
 
         return $response->body;
     }
-    
+
     /**
     * Copy
     *
@@ -251,6 +251,40 @@ class Elvis
 
         return $response->body;
     }
+
+    /**
+    * Remove
+    *
+    * Remove one or more assets. This will remove only assets, no folders.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (q) A query that matches all assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
+    * @param (array) (ids) Array containing the assetId's for the assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
+    * @param (string) (folderPath) The folderPath of the folder to remove. All assets and subfolders will be removed.
+    * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+    * @return (object) Either processedCount or processId depending if async is true or false
+    */
+    public function remove($sessionId, $q = null, $ids = null, $folderPath = null, $async = false)
+    {
+        if ($ids !== null && is_array($ids)) {
+            $idsCommaSeparated = implode(",", $ids);
+        } else {
+            $idsCommaSeparated = null;
+        }
+
+        // Form remove parameters
+        $removeParameters = array(
+            'q'             => $q,
+            'ids'           => $idsCommaSeparated,
+            'folderPath'    => $folderPath,
+            'async'         => $async
+        );
+
+         // Do the query
+        $response = Elvis::query($sessionId, 'remove', $removeParameters);
+
+        return $response->body;
+    }
     /**
     * REST call
     *
@@ -267,9 +301,9 @@ class Elvis
     {
         // Form query URI
         $uri = $this->form_query_uri($sessionId, $endpoint, $parameters, $metadata, $filename);
-        
+
         // Call REST API
-        if($filename === null) {
+        if ($filename === null) {
             $response = \Httpful\Request::get($uri)->send();
         }
 
