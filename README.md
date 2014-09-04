@@ -48,6 +48,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Move / rename](#move)
  - [Copy](#copy)
  - [Remove](#remove)
+ - [Create folder](#createfolder)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -175,7 +176,7 @@ Please see https://elvis.tenderapp.com/kb/api/rest-copy for more information abo
 
 Returns either processedCount or processId depending on the value of async.
 
-### <a name="copy">Remove</a>
+### <a name="remove">Remove</a>
 Remove one or more assets. This will remove only assets, no folders.
 
     $ids = array('1_OSDdstqxbACb97Vd-ret', '1wefOS6bauK8uRxi0rn9EK');
@@ -192,6 +193,23 @@ async| When true, the process will run asynchronous in the background. The call 
 Either 'q' or 'ids' or 'folderPath' must be specified.
 
 Returns either processedCount or processId depending on the value of async.
+
+### <a name="createfolder">Create folder</a>
+Remove one or more assets. This will remove only assets, no folders.
+
+    $createFolder = Elvis::createFolder($sessionId, '/Users/lasleh/New');
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
+path | The full folderPath of the folder to be created.
+
+Returns an object with the olderPaths of each folder as key with the corresponding result as value (always a string). The following results are possible:
+
+ - "created"
+ - "already exists"
+ - "access denied"
+ - an error message indicating why the folder could not be created
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.

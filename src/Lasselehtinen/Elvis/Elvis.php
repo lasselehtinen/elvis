@@ -235,7 +235,7 @@ class Elvis
     */
     public function copy($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
     {
-         // Form copy parameters
+        // Form copy parameters
         $copyParameters = array(
             'source'                => $source,
             'target'                => $target,
@@ -285,6 +285,28 @@ class Elvis
 
         return $response->body;
     }
+
+    /**
+    * Create folder
+    *
+    * Create one or more folders.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (path) The full folderPath of the folder to be created. This same parameter name can be specified multiple times to create several folders with one call.
+    * @return (object) Information about the newly created folder
+    */
+    public function createFolder($sessionId, $path)
+    {
+        // Form createFolder parameters
+        $createFolderParameters = array(
+            'path'                => $path
+        );
+
+        $response = Elvis::query($sessionId, 'createFolder', $createFolderParameters);
+
+        return $response->body;
+    }
+
     /**
     * REST call
     *
