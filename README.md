@@ -47,6 +47,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Updatebulk](#updatebulk)
  - [Move / rename](#move)
  - [Copy](#copy)
+ - [Remove](#remove)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -171,6 +172,24 @@ filterQuery | When specified, only source assets that match this query will be m
 flattenFolders | When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
 
 Please see https://elvis.tenderapp.com/kb/api/rest-copy for more information about the folderReplacePolicy and fileReplacePolicy.
+
+Returns either processedCount or processId depending on the value of async.
+
+### <a name="copy">Remove</a>
+Remove one or more assets. This will remove only assets, no folders.
+
+    $ids = array('1_OSDdstqxbACb97Vd-ret', '1wefOS6bauK8uRxi0rn9EK');
+    $remove = Elvis::remove($sessionId, null, $ids, null, false);
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
+q | A query that matches all assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
+   ids| Array containing the assetId's for the assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
+folderPath | The folderPath of the folder to remove. All assets and subfolders will be removed.
+async| When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+
+Either 'q' or 'ids' or 'folderPath' must be specified.
 
 Returns either processedCount or processId depending on the value of async.
    
