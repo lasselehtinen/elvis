@@ -49,6 +49,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Copy](#copy)
  - [Remove](#remove)
  - [Create folder](#createfolder)
+ - [Create relation](#createrelation)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -210,6 +211,21 @@ Returns an object with the olderPaths of each folder as key with the correspondi
  - "already exists"
  - "access denied"
  - an error message indicating why the folder could not be created
+ - 
+### <a name="createrelation">Create relation</a>
+Remove one or more assets. This will remove only assets, no folders.
+
+    $createRelation = Elvis::createRelation($sessionId, 'contains', 'FWiH0ipWKVl8CkbFGm9me9', 'CFN7pN2S4GFBz4Vorc34VJ');
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
+relationType | The type of relation to create. Read more at https://elvis.tenderapp.com/kb/content-management/relations
+target1Id | The id of the asset on one side of the relation.
+target2Id | The id of the asset on one side of the relation.
+metadata |A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
+    
+The operation returns an empty 200 OK status. If the operation fails, an error page with a 500 error status will be returned.
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.

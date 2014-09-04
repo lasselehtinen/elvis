@@ -307,6 +307,32 @@ class Elvis
         return $response->body;
     }
 
+ /**
+    * Create relation
+    *
+    * This call creates a relation of a certain type between two assets in Elvis. For example, to add an asset to a collection.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (relationType) The type of relation to create. Read more at https://elvis.tenderapp.com/kb/content-management/relations
+    * @param (string) (target1Id) The id of the asset on one side of the relation.
+    * @param (string) (target2Id) The id of the asset on one side of the relation.
+    * @param (array) (metadata) A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
+    * @return (object) Returns an empty 200 OK status.
+    */
+    public function createRelation($sessionId, $relationType, $target1Id, $target2Id, $metadata = null)
+    {
+        // Form createRelation parameters
+        $createRelationParameters = array(
+            'relationType'  => $relationType,
+            'target1Id'     => $target1Id,
+            'target2Id'     => $target2Id
+        );
+
+        $response = Elvis::query($sessionId, 'createRelation', $createRelationParameters, $metadata);
+
+        return $response->body;
+    }
+
     /**
     * REST call
     *
