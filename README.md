@@ -51,6 +51,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Create folder](#createfolder)
  - [Create relation](#createrelation)
  - [Remove relation](#removerelation)
+ - [Query stats](#querystats)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -241,6 +242,19 @@ relationIds| Array containing relation id's to be removed. To find the relation 
 The operation returns an empty 200 OK status.
 
 If the operation fails, an error page with a 500 error status will be returned.
+
+### <a name="querystats">Query stats</a>
+Query stats database for usage statistics.
+
+    $queryStats = Elvis::queryStats($sessionId, 'path_to/query.sql', 10);
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function. This is used for     queryFile | The path to the SQL file with the query you want to run.
+num | Number of rows to return. Specify 0 to return all rows.
+additionalQueryParameters | Array of additional query parameters passed to the SQL in name => value format.
+    
+For more details about the parameters see https://elvis.tenderapp.com/kb/api/rest-query-stats. Returns the result of the SQL query as an object. 
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.

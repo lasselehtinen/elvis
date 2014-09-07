@@ -339,7 +339,7 @@ class Elvis
     * Remove one or more relations between assets.
     *
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
-    * @param (array) (relationIds) Array containing relation id's to be removed
+    * @param (array) (relationIds) Array containing relation id's to be removed. To find the relation ids, use a relation search (https://elvis.tenderapp.com/kb/api/rest-search).
     * @return (object) Returns an empty 200 OK status.
     */
     public function removeRelation($sessionId, $relationIds)
@@ -350,6 +350,33 @@ class Elvis
         );
 
         $response = Elvis::query($sessionId, 'removeRelation', $removeRelationParameters);
+
+        return $response->body;
+    }
+
+    /**
+    * Query stats
+    *
+    * Query stats database for usage statistics. 
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (queryFile) The path to the SQL file with the query you want to run.
+    * @param (integer) (num) Number of rows to return. Specify 0 to return all rows.
+    * @param (array) ($additionalQueryParameters) Array of additional query parameters passed to the SQL in name => value format.
+    * @return (object) Returns an empty 200 OK status.
+    */
+    public function queryStats($sessionId, $queryFile, $num = 1000, $additionalQueryParameters = array())
+    {
+        // Form createRelation parameters
+        $queryStatsParameters = array(
+            'queryFile' => $queryFile,
+            'num'       => $num
+        );
+
+        // Add additional parameters
+        $queryStatsParameters = array_merge($queryStatsParameters, $additionalQueryParameters);
+
+        $response = Elvis::query($sessionId, 'queryStats', $queryStatsParameters);
 
         return $response->body;
     }
