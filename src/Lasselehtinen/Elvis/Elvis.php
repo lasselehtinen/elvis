@@ -334,6 +334,27 @@ class Elvis
     }
 
     /**
+    * Remove relation
+    *
+    * Remove one or more relations between assets.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (array) (relationIds) Array containing relation id's to be removed
+    * @return (object) Returns an empty 200 OK status.
+    */
+    public function removeRelation($sessionId, $relationIds)
+    {
+        // Form createRelation parameters
+        $removeRelationParameters = array(
+            'relationIds'  => implode(',', $relationIds)
+        );
+
+        $response = Elvis::query($sessionId, 'removeRelation', $removeRelationParameters);
+
+        return $response->body;
+    }
+
+    /**
     * REST call
     *
     * Performs the actual REST query

@@ -50,6 +50,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Remove](#remove)
  - [Create folder](#createfolder)
  - [Create relation](#createrelation)
+ - [Remove relation](#removerelation)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -226,6 +227,20 @@ target2Id | The id of the asset on one side of the relation.
 metadata |A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
     
 The operation returns an empty 200 OK status. If the operation fails, an error page with a 500 error status will be returned.
+
+### <a name="removerelation">Remove relation</a>
+Remove one or more relations between assets.
+
+    $removeRelation = Elvis::removeRelation($sessionId, ['77-nZwDXaTJ96lhhaDvp0t']);
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
+relationIds| Array containing relation id's to be removed. To find the relation ids, use a relation search. https://elvis.tenderapp.com/kb/api/rest-search
+    
+The operation returns an empty 200 OK status.
+
+If the operation fails, an error page with a 500 error status will be returned.
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.
