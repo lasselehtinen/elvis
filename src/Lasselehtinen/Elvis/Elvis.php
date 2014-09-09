@@ -382,6 +382,33 @@ class Elvis
     }
 
     /**
+    * Log usage stats
+    *
+    * Logs an entry in the stats database for usage statistics about assets. A record will be added to the "usage_log" table, see method query stats for details.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (assetId) The id of the asset for which the action is logged.
+    * @param (string) (action) Name of the action that is logged. This must start with "CUSTOM_ACTION_", if it does not, this prefix will be added to the logged action name.
+    * @param (array) ($additionalQueryParameters) Array of additional query parameters that are logged as details for the action.
+    * @return (object) This call does not return a value, it only returns an http 200 status OK.
+    */
+    public function logUsage($sessionId, $assetId, $action, $additionalQueryParameters = array())
+    {
+        // Form createRelation parameters
+        $logUsageParameters = array(
+            'assetId'   => $assetId,
+            'action'    => $action
+        );
+
+        // Add additional parameters
+        $logUsageParameters = array_merge($logUsageParameters, $additionalQueryParameters);
+
+        $response = Elvis::query($sessionId, 'logUsage', $logUsageParameters);
+
+        return $response->body;
+    }
+
+    /**
     * REST call
     *
     * Performs the actual REST query

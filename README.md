@@ -52,6 +52,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Create relation](#createrelation)
  - [Remove relation](#removerelation)
  - [Query stats](#querystats)
+ - [Log usage stats](#logusagestats)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -255,6 +256,20 @@ num | Number of rows to return. Specify 0 to return all rows.
 additionalQueryParameters | Array of additional query parameters passed to the SQL in name => value format.
     
 For more details about the parameters see https://elvis.tenderapp.com/kb/api/rest-query-stats. Returns the result of the SQL query as an object. 
+
+### <a name="logusagestats">Log usage stats</a>
+Logs an entry in the stats database for usage statistics about assets. A record will be added to the "usage_log" table, see [Query stats](#querystats) for details.
+
+    $logUsage = Elvis::logUsage($sessionId, 'FWiH0ipWKVl8CkbFGm9me9', 'CUSTOM_ACTION_test', array('metadataKey'=>'value'));
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
+assetId | The id of the asset for which the action is logged.
+action | Name of the action that is logged. This must start with "CUSTOM_ACTION_", if it does not, this prefix will be added to the logged action name.
+additionalQueryParameters | Array of additional query parameters that are logged as details for the action.
+    
+This call does not return a value, it only returns an http 200 status OK.
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.
