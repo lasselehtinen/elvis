@@ -20,6 +20,17 @@ class ElvisTest extends Orchestra\Testbench\TestCase {
         $logout = Elvis::logout($this->sessionId);        
     }
 
+    // Override package service provider and alias
+    protected function getPackageProviders()
+    {
+        return array('Lasselehtinen\Elvis\ElvisServiceProvider');
+    }
+
+    protected function getPackageAliases()
+    {
+        return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
+    }
+
     /**
      * Tests that basic login is succesfull and session id is returned
      *
