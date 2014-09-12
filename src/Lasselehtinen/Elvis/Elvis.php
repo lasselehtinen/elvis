@@ -408,6 +408,22 @@ class Elvis
         return $response->body;
     }
 
+   /**
+    * Checkout
+    *
+    * Checks out an asset from the system locking the file for other users.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (assetId) The Elvis id of the asset to be checked out.
+    * @return (object) This call does not return a value, it only returns an http 200 status OK.
+    */
+    public function checkout($sessionId, $assetId)
+    {
+        // Only parameters is assetId
+        $response = Elvis::query($sessionId, 'checkout', null, null, null, $assetId);
+
+        return $response->body;
+    }
     /**
     * REST call
     *
@@ -420,11 +436,17 @@ class Elvis
     * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
     * @return (object) Query response or exception if something went wrong
     */
-    public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
+    public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null, $segmentParameter = null)
     {
         // Form query URI
-        $uri = $this->form_query_uri($sessionId, $endpoint, $parameters, $metadata, $filename);
+        $uri = $this->form_query_uri($sessionId, $endpoint, $parameters, $metadata, $filename, $segmentParameter);
 
+        if($endpoint=='checkout')
+        {
+            var_dump($uri);
+
+        }
+        
         // Call REST API
         if ($filename === null) {
             $response = \Httpful\Request::get($uri)->send();
@@ -464,19 +486,23 @@ class Elvis
     * @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
     * @param (array) (parameters) All query parameters
     * @param (array) (metadata) Query parameters that will be converted to JSON array
-    * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
     * @return (string) The complete URL of the REST request
     */
-    public function form_query_uri($sessionId, $endpoint, $parameters, $metadata, $filename)
+    public function form_query_uri($sessionId, $endpoint, $parameters, $metadata, $segmentParameter)
     {
         // Form basic URI
         $uriParts = array();
         $uriParts['baseUrl'] = Config::get('elvis::api_endpoint_uri');
         $uriParts['method'] = $endpoint;
 
+        // If segment is given, only use that one
+        if ($segmentParameter !== null) {
+            $uriParts['segmentParameter'] = '/' . $segmentParameter;
+        }
+
         // Add session if needed, basically everything else except login
         if ($sessionId !== null) {
-            $uriParts['jsessionId'] = ';jsessionid=' . $sessionId;
+            $uriParts['jsessionId'] = '/;jsessionid=' . $sessionId;
         }
 
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
@@ -508,7 +534,7 @@ class Elvis
         }
 
         // Form complete URI by imploding the array
-        $uri = implode($uriParts);
+        $uri = implode($uriParts, '');
 
         return $uri;
     }
