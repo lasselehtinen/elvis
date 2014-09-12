@@ -439,13 +439,7 @@ class Elvis
     public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null, $segmentParameter = null)
     {
         // Form query URI
-        $uri = $this->form_query_uri($sessionId, $endpoint, $parameters, $metadata, $filename, $segmentParameter);
-
-        if($endpoint=='checkout')
-        {
-            var_dump($uri);
-
-        }
+        $uri = $this->formQueryUrl($sessionId, $endpoint, $parameters, $metadata, $filename, $segmentParameter);
         
         // Call REST API
         if ($filename === null) {
@@ -488,7 +482,7 @@ class Elvis
     * @param (array) (metadata) Query parameters that will be converted to JSON array
     * @return (string) The complete URL of the REST request
     */
-    public function form_query_uri($sessionId, $endpoint, $parameters, $metadata, $segmentParameter)
+    public function formQueryUrl($sessionId, $endpoint, $parameters, $metadata, $segmentParameter)
     {
         // Form basic URI
         $uriParts = array();

@@ -1,6 +1,4 @@
 /vendor
 composer.phar
 composer.lock
-.DS_Store
-.DS_Store
 /src/config/testing
