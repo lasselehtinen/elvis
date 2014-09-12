@@ -63,7 +63,7 @@ class ElvisTest extends Orchestra\Testbench\TestCase
           'Symfony\Component\HttpKernel\Exception\HttpException', 'Invalid username or password'
         );
 
-        // Set incorrent username and password
+        // Set incorrect username and password
         Config::set('elvis::username', 'incorrect_username');
         Config::set('elvis::password', 'incorrect_password');
 
@@ -189,8 +189,106 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         // Refetch asset and check that metadata is updated
         $search_results = Elvis::search($this->sessionId, 'id:'.$this->assetId);
         $this->assertEquals($search_results->hits[0]->metadata->gtin, 1234567890123);
-
-
     }
 
+    /**
+    *
+    * Tests for the copy and move/rename functions
+    *
+    * @return void
+    */
+    public function testCopyAndMove()
+    {
+        // Get assetPath of your created asset
+        $search_results = Elvis::search($this->sessionId, 'id:' . $this->assetId);
+
+        // Check that we get one hit and the assetPath is correct type
+        $this->assertEquals($search_results->totalHits, 1);
+        $this->assertInternalType('string', $search_results->hits[0]->metadata->assetPath);
+        
+        // Create new filename
+        $pathParts = pathinfo($search_results->hits[0]->metadata->assetPath);
+        $copyFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-copy.' . $pathParts['extension'];
+        
+        $copy = Elvis::copy($this->sessionId, $search_results->hits[0]->metadata->assetPath, $copyFilename);
+        
+        // Check that we get correct processedCount
+        $this->assertEquals($copy->processedCount, 1);
+
+        // Check that the copied file exists
+        $search_results = Elvis::search($this->sessionId, 'assetPath:"' . $copyFilename . '"');
+        $this->assertEquals($search_results->totalHits, 1);
+
+        // Rename the file
+        $renamedFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-renamed.' . $pathParts['extension'];
+
+        $rename = Elvis::move($this->sessionId, $copyFilename, $renamedFilename);
+
+        // Check that we get correct processedCount
+        $this->assertEquals($rename->processedCount, 1);
+
+        // Remove the renamed filename
+        $remove = Elvis::remove($this->sessionId, 'assetPath:"' . $renamedFilename . '"');
+        $this->assertEquals($remove->processedCount, 1);
+    }
+    
+    /**
+    *
+    * Tests for the creation of folders
+    *
+    * @return void
+    */
+    public function testCreateFolder()
+    {
+        // Get assetPath of your created asset
+        $profile = Elvis::profile($this->sessionId);
+
+        // Create new folder in the the User Zone aka home directory
+        $newFolder = $profile->userZone . '/New folder';        
+        $createFolder = Elvis::createFolder($this->sessionId, $newFolder);
+
+        // Check that we get correct response
+        $this->assertEquals($createFolder->$newFolder, 'created');
+
+        // Try to create existing folder
+        $createDuplicateFolder = Elvis::createFolder($this->sessionId, $newFolder);
+        $this->assertEquals($createDuplicateFolder->$newFolder, 'already exists');
+
+        // Remove the created folder
+        $removeFolder = Elvis::remove($this->sessionId, null, null, $newFolder, false);
+        
+        // Since actually no assets were removed, we will get 0
+        $this->assertEquals($removeFolder->processedCount, 0);
+    }
+
+    /**
+    *
+    * Tests for the query stats
+    *
+    * @return void
+    */
+    public function testQueryStats()
+    {
+        $queryStats = Elvis::queryStats($this->sessionId, 'stats_rawdata/sql/usagelog.sql', 10);
+        
+        // Check that we get correct response and amount
+        $this->assertInternalType('array', $queryStats);
+        $this->assertEquals(count($queryStats), 10);        
+    }
+
+    /**
+    *
+    * Tests for the log usage
+    *
+    * @return void
+    */
+    public function testLogUsage()
+    {
+        // Log custom action
+        $uniqueId = uniqid();
+        $logUsage = Elvis::logUsage($this->sessionId, $this->assetId, 'CUSTOM_ACTION_Test', array('uniqueTestId' => $uniqueId));
+
+        // TODO - Sleep for around 20 seconds and go through usage log to find match
+    }
+    
 }
