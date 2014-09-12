@@ -408,22 +408,6 @@ class Elvis
         return $response->body;
     }
 
-   /**
-    * Checkout
-    *
-    * Checks out an asset from the system locking the file for other users.
-    *
-    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
-    * @param (string) (assetId) The Elvis id of the asset to be checked out.
-    * @return (object) This call does not return a value, it only returns an http 200 status OK.
-    */
-    public function checkout($sessionId, $assetId)
-    {
-        // Only parameters is assetId
-        $response = Elvis::query($sessionId, 'checkout', null, null, null, $assetId);
-
-        return $response->body;
-    }
     /**
     * REST call
     *
@@ -439,7 +423,7 @@ class Elvis
     public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
     {
         // Form query URI
-        $uri = $this->formQueryUrl($sessionId, $endpoint, $parameters, $metadata, $filename);
+        $uri = $this->formQueryUrl($sessionId, $endpoint, $parameters, $metadata);
         
         // Attach filedata if necessary
         if (isset($filename)) {

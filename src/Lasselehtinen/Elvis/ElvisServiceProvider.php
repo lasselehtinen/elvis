@@ -31,7 +31,7 @@ class ElvisServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app['elvis'] = $this->app->share(function($app)
+		$this->app['elvis'] = $this->app->share(function()
   		{
     		return new Elvis;
   		});

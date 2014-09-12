@@ -14,7 +14,11 @@ class ElvisTest extends Orchestra\Testbench\TestCase
 
         // Store asset id for various tests        
         $search_results = Elvis::search($this->sessionId, 'filename:composer.json AND assetModifier:' . Config::get('elvis::username'));
-        $this->assetId = $search_results->hits[0]->id;
+        
+        if($search_results->totalHits > 0) {
+            $this->assetId = $search_results->hits[0]->id;    
+        }
+        
     }
 
     public function tearDown()
