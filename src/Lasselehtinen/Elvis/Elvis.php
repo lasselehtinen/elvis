@@ -478,9 +478,11 @@ class Elvis
 
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
         if ($parameters !== null || $metadata !== null) {
-            $uriParts['parametersSeparator'] = '?';
-            $queryParameters = array();
+            $uriParts['parametersSeparator'] = '?';            
         }
+
+        // Init query parameters array
+        $queryParameters = array();
 
         // Add normal key=value parameters if needed, basically everything else except logout
         if ($parameters !== null) {
@@ -505,7 +507,7 @@ class Elvis
         }
 
         // Form complete URI by imploding the array
-        $uri = implode($uriParts, '');
+        $uri = implode('', $uriParts);
 
         return $uri;
     }
