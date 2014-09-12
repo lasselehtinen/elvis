@@ -436,20 +436,18 @@ class Elvis
     * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
     * @return (object) Query response or exception if something went wrong
     */
-    public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null, $segmentParameter = null)
+    public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
     {
         // Form query URI
-        $uri = $this->formQueryUrl($sessionId, $endpoint, $parameters, $metadata, $filename, $segmentParameter);
+        $uri = $this->formQueryUrl($sessionId, $endpoint, $parameters, $metadata, $filename);
         
-        // Call REST API
-        if ($filename === null) {
-            $response = \Httpful\Request::get($uri)->send();
-        }
-
         // Attach filedata if necessary
-        if ($filename !== null) {
+        if (isset($filename)) {
             // If filename is given, we have to attach it (create method)
             $response = \Httpful\Request::post($uri)->attach(array('Filedata' => $filename))->send();
+        } else {
+            // Call URI
+            $response = \Httpful\Request::get($uri)->send();
         }
 
         // Check if get 404
@@ -482,17 +480,12 @@ class Elvis
     * @param (array) (metadata) Query parameters that will be converted to JSON array
     * @return (string) The complete URL of the REST request
     */
-    public function formQueryUrl($sessionId, $endpoint, $parameters, $metadata, $segmentParameter)
+    public function formQueryUrl($sessionId, $endpoint, $parameters, $metadata)
     {
         // Form basic URI
         $uriParts = array();
         $uriParts['baseUrl'] = Config::get('elvis::api_endpoint_uri');
         $uriParts['method'] = $endpoint;
-
-        // If segment is given, only use that one
-        if ($segmentParameter !== null) {
-            $uriParts['segmentParameter'] = '/' . $segmentParameter;
-        }
 
         // Add session if needed, basically everything else except login
         if ($sessionId !== null) {
