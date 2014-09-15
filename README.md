@@ -53,6 +53,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Remove relation](#removerelation)
  - [Query stats](#querystats)
  - [Log usage stats](#logusagestats)
+ - [Messages / Localization](#messages)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -270,6 +271,45 @@ action | Name of the action that is logged. This must start with "CUSTOM_ACTION_
 additionalQueryParameters | Array of additional query parameters that are logged as details for the action.
     
 This call does not return a value, it only returns an http 200 status OK.
+
+### <a name="messages">Messages / Localization</a>
+Retrieve message bundles from the Elvis server.
+
+Allows localization of a custom plugin using messages available on the server. The messages from the webclient web or desktop client acm can be used in your own plugin. It is also possible to use any custom messages defined in the Config/messages folder.
+
+The common message bundle cmn is always returned and merged with the requested bundle. The common bundle contains messages for relations, metadata fields, metadata groups and metadata values. The common message keys have the following structure:
+
+**Relations:**
+
+    relation.[relation type].label
+**Metadata fields:**
+
+    field_label.[field name]
+
+**Metadata groups:**
+
+    field_group_label.[group name]
+
+**Metadata values:**
+
+    field_value_label.[field name].[value]    
+    
+For a full list of available messages see this [knowledge base article](https://elvis.tenderapp.com/kb/server-administration/translating-clients).    
+
+     $messages = Elvis::messages($sessionId, 'fi_FI');
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
+localChain | Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
+ifModifiedSince | The date of the last requested cached messages, specified in milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
+bundle | The bundle to return, can be either web or acm. The cmn bundle will always be returned combined with the requested bundle.
+
+    
+The service returns an object containing all keys and messages. Please note that commas in object properties have to be referenced like this:
+
+    $messages->{'field_label.creatorEmail'}
+
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.

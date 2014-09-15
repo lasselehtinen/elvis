@@ -5,30 +5,6 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     protected $sessionId;
     protected $assetId;
 
-    public function setUp()
-    {
-        parent::setUp();
-
-        // Get session Id to user in the queries
-        $this->sessionId = Elvis::login();
-
-        // Store asset id for various tests        
-        $search_results = Elvis::search($this->sessionId, 'filename:composer.json AND assetModifier:' . Config::get('elvis::username'));
-        
-        if($search_results->totalHits > 0) {
-            $this->assetId = $search_results->hits[0]->id;    
-        }
-        
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-
-        // Log out from Elvis
-        $logout = Elvis::logout($this->sessionId);
-    }
-
     // Override package service provider and alias
     protected function getPackageProviders()
     {
@@ -38,6 +14,33 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     protected function getPackageAliases()
     {
         return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
+    }
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        // Get session Id to user in the queries
+        $this->sessionId = Elvis::login();
+        
+        // Upload a randon file to Elvis for various tests
+        $temporaryFilename = $tmpfname = tempnam("/tmp", "ElvisTest");
+
+        // Create a file and store asset id
+        $create = Elvis::create($this->sessionId, $temporaryFilename);
+        $this->assetId = $create->id;
+        
+        // Remove temporary file
+        unlink($temporaryFilename);
+    }
+
+    public function tearDown()
+    {
+        // Remove asset from Elvis
+        $remove = Elvis::remove($this->sessionId, null, array($this->assetId), null, false);
+
+        // Log out from Elvis
+        $logout = Elvis::logout($this->sessionId);
     }
 
     /**
@@ -122,24 +125,24 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     public function testSearch()
     {
         // General search without any parameters
-        $search_results = Elvis::search($this->sessionId, '*:*');
+        $searchResults = Elvis::search($this->sessionId, '*:*');
 
         // Check that defaults are OK (start = 0 and num = 50)
-        $this->assertEquals($search_results->firstResult, 0);
-        $this->assertEquals($search_results->maxResultHits, 50);
+        $this->assertEquals($searchResults->firstResult, 0);
+        $this->assertEquals($searchResults->maxResultHits, 50);
 
         // More spesified search
-        $search_results = Elvis::search($this->sessionId, '*:*', 10, 20, '', 'metadataComplete', true);
+        $searchResults = Elvis::search($this->sessionId, '*:*', 10, 20, '', 'metadataComplete', true);
 
         // Check that start and num are reflected in the response
-        $this->assertEquals($search_results->firstResult, 10);
-        $this->assertEquals($search_results->maxResultHits, 20);
+        $this->assertEquals($searchResults->firstResult, 10);
+        $this->assertEquals($searchResults->maxResultHits, 20);
 
         // Check metadataToReturn = 'metadataComplete' is returned in results
-        $this->assertInternalType('string', $search_results->hits[0]->metadata->metadataComplete);
+        $this->assertInternalType('string', $searchResults->hits[0]->metadata->metadataComplete);
 
         // Check that requestSecret parameter is added to the response URL's
-        $this->assertContains('&requestSecret=', $search_results->hits[0]->originalUrl);
+        $this->assertContains('&requestSecret=', $searchResults->hits[0]->originalUrl);
     }
 
      /**
@@ -168,8 +171,8 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         $this->assertInternalType('object', $update);
 
         // Get the asset info again and check that the metadata is updated
-        $search_results = Elvis::search($this->sessionId, 'id:'.$this->assetId);
-        $this->assertEquals($search_results->hits[0]->metadata->gtin, 1234567890);
+        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
+        $this->assertEquals($searchResults->hits[0]->metadata->gtin, 1234567890);
     }
 
     /**
@@ -187,8 +190,8 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         $this->assertEquals($updatebulk->processedCount, 1);
 
         // Refetch asset and check that metadata is updated
-        $search_results = Elvis::search($this->sessionId, 'id:'.$this->assetId);
-        $this->assertEquals($search_results->hits[0]->metadata->gtin, 1234567890123);
+        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
+        $this->assertEquals($searchResults->hits[0]->metadata->gtin, 1234567890123);
     }
 
     /**
@@ -200,24 +203,24 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     public function testCopyAndMove()
     {
         // Get assetPath of your created asset
-        $search_results = Elvis::search($this->sessionId, 'id:' . $this->assetId);
+        $searchResults = Elvis::search($this->sessionId, 'id:' . $this->assetId);
 
         // Check that we get one hit and the assetPath is correct type
-        $this->assertEquals($search_results->totalHits, 1);
-        $this->assertInternalType('string', $search_results->hits[0]->metadata->assetPath);
+        $this->assertEquals($searchResults->totalHits, 1);
+        $this->assertInternalType('string', $searchResults->hits[0]->metadata->assetPath);
         
         // Create new filename
-        $pathParts = pathinfo($search_results->hits[0]->metadata->assetPath);
+        $pathParts = pathinfo($searchResults->hits[0]->metadata->assetPath);
         $copyFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-copy.' . $pathParts['extension'];
         
-        $copy = Elvis::copy($this->sessionId, $search_results->hits[0]->metadata->assetPath, $copyFilename);
+        $copy = Elvis::copy($this->sessionId, $searchResults->hits[0]->metadata->assetPath, $copyFilename);
         
         // Check that we get correct processedCount
         $this->assertEquals($copy->processedCount, 1);
 
         // Check that the copied file exists
-        $search_results = Elvis::search($this->sessionId, 'assetPath:"' . $copyFilename . '"');
-        $this->assertEquals($search_results->totalHits, 1);
+        $searchResults = Elvis::search($this->sessionId, 'assetPath:"' . $copyFilename . '"');
+        $this->assertEquals($searchResults->totalHits, 1);
 
         // Rename the file
         $renamedFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-renamed.' . $pathParts['extension'];
@@ -275,7 +278,57 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         $this->assertInternalType('array', $queryStats);
         $this->assertEquals(count($queryStats), 10);        
     }
+    
+    /**
+    *
+    * Tests or creating a relation
+    *
+    * @return voic
+    */
+    public function testCreateAndRemoveRelation()
+    {
+        // Create the first asset file
+        $metadata = array('filename' => 'asset1.txt', 'creatorName' => 'Test user');
+        $create = Elvis::create($this->sessionId, null, $metadata);
+        $asset1Id = $create->id;
 
+        // Create the second asset file
+        $metadata = array('filename' => 'asset2.txt', 'creatorName' => 'Test user');
+        $create = Elvis::create($this->sessionId, null, $metadata);
+        $asset2Id = $create->id;
+
+        // Create relation between these two
+        $createRelation = Elvis::createRelation($this->sessionId, 'related', $asset1Id, $asset2Id);
+        
+        // Chech that response is in correct form
+        $this->assertInternalType('object', $createRelation);
+
+        // Search for the relation
+        $searchResults = Elvis::search($this->sessionId, 'relatedTo:' . $asset1Id . ' relationTarget:child relationType:related');
+
+        // Chech that response is in correct form
+        $this->assertInternalType('object', $searchResults);
+        $this->assertEquals($searchResults->totalHits, 1);
+
+        // Check that we have relation returned in the results
+        $this->assertInternalType('object', $searchResults->hits[0]->relation);
+        
+        // Check that the relation information is correct
+        $this->assertEquals($searchResults->hits[0]->relation->relationType, 'related');
+        $this->assertEquals($searchResults->hits[0]->relation->target1Id, $asset1Id);
+        $this->assertEquals($searchResults->hits[0]->relation->target2Id, $asset2Id);
+        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationModifier, Config::get('elvis::username'));
+        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationCreator, Config::get('elvis::username'));
+
+        // Remove the relation
+        $removeRelation = Elvis::removeRelation($this->sessionId, array($searchResults->hits[0]->relation->relationId));
+        $this->assertEquals($removeRelation->processedCount, 1);
+
+        // Do the search again, we should not any hits anymore
+        $searchResults = Elvis::search($this->sessionId, 'relatedTo:' . $asset1Id . ' relationTarget:child relationType:related');
+        $this->assertEquals($searchResults->totalHits, 0);
+    }
+    
     /**
     *
     * Tests for the log usage
@@ -284,11 +337,55 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     */
     public function testLogUsage()
     {
-        // Log custom action
+        // Set default and create unique id so we can distinguish test case from other
+        $actionFound = false;
         $uniqueId = uniqid();
+        
+        // Create log entry
         $logUsage = Elvis::logUsage($this->sessionId, $this->assetId, 'CUSTOM_ACTION_Test', array('uniqueTestId' => $uniqueId));
 
-        // TODO - Sleep for around 20 seconds and go through usage log to find match
+        // Sleep for around 15 seconds and go through usage log to find match
+        sleep(20);
+
+        // Query usage log
+        $queryStats = Elvis::queryStats($this->sessionId, 'stats_rawdata/sql/usagelog.sql');
+
+        // Go through the stats and try to find match
+        foreach($queryStats as $queryStat)
+        {
+            // Check if there is a match with action type
+            if($queryStat->action_type == 'CUSTOM_ACTION_CUSTOM_ACTION_Test') {
+                // Go through custom metadatas
+                foreach($queryStat->details as $key => $value) {
+                    if($key == 'uniqueTestId' && $value == $uniqueId) {
+                        $actionFound = true;
+                        break;
+                    }
+                }
+            }      
+        }
+
+        $this->assertEquals($actionFound, true, "logUsage not found the usage log");        
     }
-    
+
+    /**
+     * Tests that messages is working properly
+     *
+     * @return void
+     */
+    public function testMessages()
+    {   
+        // Test without any parameters
+        $messages = Elvis::messages($this->sessionId);
+        
+        // Check that have certain known labels
+        $this->assertInternalType('object', $messages);
+        $this->assertEquals($messages->{'field_label.creatorEmail'}, 'E-mail');
+
+        // Go a message query with locale fi_FI
+        $messages = Elvis::messages($this->sessionId, 'fi_FI');
+        $this->assertEquals($messages->{'field_label.creatorEmail'}, 'Sähköposti');
+    }
+
+
 }

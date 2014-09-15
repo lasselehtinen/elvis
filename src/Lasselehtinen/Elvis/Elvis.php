@@ -130,7 +130,7 @@ class Elvis
     * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
     * @return (object) Information about the newly created asset
     */
-    public function create($sessionId, $filename, $metadata)
+    public function create($sessionId, $filename, $metadata = null)
     {
 
         $response = Elvis::query($sessionId, 'create', null, $metadata, $filename);
@@ -404,6 +404,31 @@ class Elvis
         $logUsageParameters = array_merge($logUsageParameters, $additionalQueryParameters);
 
         $response = Elvis::query($sessionId, 'logUsage', $logUsageParameters);
+
+        return $response->body;
+    }
+
+    /**
+    * Messages
+    *
+    * Retrieve message bundles from the Elvis server.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (array) (localChain) Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
+    * @param (string) (ifModifiedSince) The date of the last requested cached messages, specified in milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
+    * @param (string) (bundle) The bundle to return, can be either web or acm. The cmn bundle will always be returned combined with the requested bundle.
+    * @return (object) Elvis returns something strange, TODO investigate it
+    */
+    public function messages($sessionId, $localeChain = null, $ifModifiedSince = null, $bundle = null)
+    {
+        // Form message parameters
+        $messagesParameters = array(
+            'localeChain'       => $localeChain,
+            'ifModifiedSince'   => $ifModifiedSince,
+            'bundle'            => $bundle
+        );
+
+        $response = Elvis::query($sessionId, 'messages', $messagesParameters);
 
         return $response->body;
     }
