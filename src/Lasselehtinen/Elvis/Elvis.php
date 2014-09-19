@@ -1,8 +1,10 @@
 <?php namespace LasseLehtinen\Elvis;
 
- // Import classes to use the classic "Config::get()" approach and App for throwing exceptions
- use Config;
- use App;
+// Import classes to use the classic "Config::get()" approach and App for throwing exceptions
+use Config;
+use App;
+use Guzzle\Http\Client;
+use GuzzleHttp\Post\PostFile;
 
 class Elvis
 {
@@ -23,7 +25,7 @@ class Elvis
 
         $response = Elvis::query(null, 'login', $loginParameters);
 
-        return $response->body->sessionId;
+        return $response->sessionId;
     }
 
     /**
@@ -39,7 +41,7 @@ class Elvis
         // Call logout REST API
         $response = Elvis::query($sessionId, 'logout');
 
-        return $response->body->logoutSuccess;
+        return $response->logoutSuccess;
     }
 
     /**
@@ -71,7 +73,7 @@ class Elvis
         // Call the search REST API
         $response = Elvis::query($sessionId, 'search', $searchParameters);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -101,7 +103,7 @@ class Elvis
         // Call browse REST API
         $response = Elvis::query($sessionId, 'browse', $browseParameters);
 
-          return $response->body;
+          return $response;
     }
 
     /**
@@ -117,7 +119,7 @@ class Elvis
         // Call profile REST API
         $response = Elvis::query($sessionId, 'profile');
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -135,7 +137,7 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'create', null, $metadata, $filename);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -158,7 +160,7 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'update', $updateParameters, $metadata, $filename);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -183,7 +185,7 @@ class Elvis
          // Do the query
         $response = Elvis::query($sessionId, 'updatebulk', $updateBulk, $metadata);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -215,7 +217,7 @@ class Elvis
          // Do the query
         $response = Elvis::query($sessionId, 'move', $moveParameters);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -249,7 +251,7 @@ class Elvis
          // Do the query
         $response = Elvis::query($sessionId, 'copy', $copyParameters);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -283,7 +285,7 @@ class Elvis
          // Do the query
         $response = Elvis::query($sessionId, 'remove', $removeParameters);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -304,7 +306,7 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'createFolder', $createFolderParameters);
 
-        return $response->body;
+        return $response;
     }
 
  /**
@@ -330,7 +332,7 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'createRelation', $createRelationParameters, $metadata);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -351,7 +353,7 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'removeRelation', $removeRelationParameters);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -378,7 +380,7 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'queryStats', $queryStatsParameters);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -405,7 +407,7 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'logUsage', $logUsageParameters);
 
-        return $response->body;
+        return $response;
     }
 
     /**
@@ -417,7 +419,7 @@ class Elvis
     * @param (array) (localChain) Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
     * @param (string) (ifModifiedSince) The date of the last requested cached messages, specified in milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
     * @param (string) (bundle) The bundle to return, can be either web or acm. The cmn bundle will always be returned combined with the requested bundle.
-    * @return (object) Elvis returns something strange, TODO investigate it
+    * @return (object) Object containing all keys and messages.
     */
     public function messages($sessionId, $localeChain = null, $ifModifiedSince = null, $bundle = null)
     {
@@ -430,7 +432,33 @@ class Elvis
 
         $response = Elvis::query($sessionId, 'messages', $messagesParameters);
 
-        return $response->body;
+        return $response;
+    }
+
+    /**
+    * Zip download
+    *
+    * Download originals or previews as a ZIP file
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (filename) Filename of the zip file to be created
+    * @param (string) (downloadKind) The type of the files that are included in the archive. Possible values are original or preview.
+    * @param (array) (assetIds) Array containing the asset to be included in the Zip file 
+    * @return (object) 
+    */
+    public function zip($sessionId, $filename, $downloadKind, $assetIds)
+    {
+        // Form copy parameters
+        $zipParameters = array(
+            'filename'      => $filename,
+            'downloadKind'  => $downloadKind,
+            'assetIds'      => implode($assetIds, ','),
+        );
+
+         // Do the query
+        $response = Elvis::query($sessionId, 'zip', $zipParameters);
+
+        return $response;
     }
 
     /**
@@ -449,33 +477,47 @@ class Elvis
     {
         // Form query URI
         $uri = $this->formQueryUrl($sessionId, $endpoint, $parameters, $metadata);
-        
-        // Attach filedata if necessary
-        if (isset($filename)) {
-            // If filename is given, we have to attach it (create method)
-            $response = \Httpful\Request::post($uri)->attach(array('Filedata' => $filename))->send();
-        } else {
-            // Call URI
-            $response = \Httpful\Request::get($uri)->send();
+
+        // Create new Guzzle client
+        $client = new \GuzzleHttp\Client();
+
+        // Form Guzzle query depending on the endpaint
+        switch ($endpoint) {
+            // For login we dont set the cookie
+            case 'login':
+                $response = $client->get($uri, ['debug' => false]);
+                break;
+
+            // For create we have store file contents and send it as variable Filedata
+            case 'create':
+                $response = $client->post($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'body' => ['Filedata' => fopen($filename, 'r')], 'debug' => false]);
+                break;
+            
+            default:
+                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'debug' => false]);
+                break;
         }
 
+        // Convert JSON response to StdObject
+        $response_object = json_decode($response->getBody());
+        
         // Check if get 404
-        if ($response->code == 404) {
-            App::abort($response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
+        if ($response->getStatusCode() == 404) {
+            App::abort($response_object->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
         }
 
         // For login, check if get error
-        if (isset($response->body->loginSuccess) && $response->body->loginSuccess === false) {
-            App::abort($response->code, $response->body->loginFaultMessage);
+        if (isset($response_object->loginSuccess) && $response_object->loginSuccess === false) {
+            App::abort($response->getStatusCode(), $response_object->loginFaultMessage);
         }
 
         // Check if get an errorcode in the response
-        if (isset($response->body->errorcode)) {
-            App::abort($response->body->errorcode, 'Error: ' . $response->body->message);
+        if (isset($response_object->errorcode)) {
+            App::abort($response_object->errorcode, 'Error: ' . $response_object->message);
         }
 
         // Return the API JSON response as object
-        return $response;
+        return $response_object;
     }
 
     /**
@@ -494,12 +536,22 @@ class Elvis
         // Form basic URI
         $uriParts = array();
         $uriParts['baseUrl'] = Config::get('elvis::api_endpoint_uri');
-        $uriParts['method'] = $endpoint;
+        $uriParts['endpoint'] = $endpoint;
+
+        // Add filename to Zip download
+        if($endpoint == 'zip')
+        {
+            $uriParts['zipFilename'] = '/' . $parameters['filename'];
+            unset($parameters['filename']);
+            
+            // Remove services, since zip download is at the root
+            $uriParts['baseUrl'] = str_replace('services/', '', $uriParts['baseUrl']);
+        }
 
         // Add session if needed, basically everything else except login
-        if ($sessionId !== null) {
-            $uriParts['jsessionId'] = '/;jsessionid=' . $sessionId;
-        }
+        //if ($sessionId !== null) {
+        //    $uriParts['jsessionId'] = '/;jsessionid=' . $sessionId;
+        //}
 
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
         if ($parameters !== null || $metadata !== null) {

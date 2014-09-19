@@ -21,10 +21,10 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         parent::setUp();
 
         // Get session Id to user in the queries
-        $this->sessionId = Elvis::login();
+        $this->sessionId = Elvis::login();     
         
         // Upload a randon file to Elvis for various tests
-        $temporaryFilename = $tmpfname = tempnam("/tmp", "ElvisTest");
+        $temporaryFilename = tempnam("/tmp", "ElvisTest");
 
         // Create a file and store asset id
         $create = Elvis::create($this->sessionId, $temporaryFilename);
@@ -37,7 +37,7 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     public function tearDown()
     {
         // Remove asset from Elvis
-        $remove = Elvis::remove($this->sessionId, null, array($this->assetId), null, false);
+        //$remove = Elvis::remove($this->sessionId, null, array($this->assetId), null, false);
 
         // Log out from Elvis
         $logout = Elvis::logout($this->sessionId);
@@ -61,7 +61,7 @@ class ElvisTest extends Orchestra\Testbench\TestCase
      */
     public function testLoginWithIncorrectUsernameAndPassword()
     {
-        // Test that login i
+        // Test that login
         $this->setExpectedException(
           'Symfony\Component\HttpKernel\Exception\HttpException', 'Invalid username or password'
         );
@@ -72,6 +72,7 @@ class ElvisTest extends Orchestra\Testbench\TestCase
 
         // Try login
         $sessionId = Elvis::login();
+        var_dump($sessionId);
     }
 
     /**
@@ -92,21 +93,24 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         $this->assertInternalType('array', $profile->groups);
 
         // Check that username is the same we used to log in
-        $this->assertEquals($profile->username, Config::get('elvis::username'));
+        $this->assertEquals($profile->username, Config::get('elvis::username'));        
     }
 
     /**
      * Tests that creating a file and assigning metadata to it works fine
-     *
+     * @group regresssion
      * @return void
      */
     public function testCreate()
     {
-        // Set additional metadata
+        // Create temporary file
+        $temporaryFilename = tempnam("/tmp", "ElvisTest");
+
+        // Create additional metadata
         $metadata = array('gtin' => '123456', 'creatorName' => 'Test');
 
         // Create a file
-        $create = Elvis::create($this->sessionId, './composer.json', $metadata);
+        $create = Elvis::create($this->sessionId, $temporaryFilename, $metadata);
 
         // Chech that response is in correct form
         $this->assertInternalType('object', $create);
@@ -211,7 +215,7 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         
         // Create new filename
         $pathParts = pathinfo($searchResults->hits[0]->metadata->assetPath);
-        $copyFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-copy.' . $pathParts['extension'];
+        $copyFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-copy';
         
         $copy = Elvis::copy($this->sessionId, $searchResults->hits[0]->metadata->assetPath, $copyFilename);
         
@@ -223,7 +227,7 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         $this->assertEquals($searchResults->totalHits, 1);
 
         // Rename the file
-        $renamedFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-renamed.' . $pathParts['extension'];
+        $renamedFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-renamed';
 
         $rename = Elvis::move($this->sessionId, $copyFilename, $renamedFilename);
 
@@ -288,14 +292,18 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     public function testCreateAndRemoveRelation()
     {
         // Create the first asset file
-        $metadata = array('filename' => 'asset1.txt', 'creatorName' => 'Test user');
-        $create = Elvis::create($this->sessionId, null, $metadata);
+        $asset1Filename = tempnam("/tmp", "ElvisTest");
+        $metadata = array('creatorName' => 'Test user');
+        $create = Elvis::create($this->sessionId, $asset1Filename, $metadata);
         $asset1Id = $create->id;
+        unlink($asset1Filename);
 
         // Create the second asset file
-        $metadata = array('filename' => 'asset2.txt', 'creatorName' => 'Test user');
-        $create = Elvis::create($this->sessionId, null, $metadata);
+        $asset2Filename = tempnam("/tmp", "ElvisTest");
+        $metadata = array('creatorName' => 'Test user');
+        $create = Elvis::create($this->sessionId, $asset2Filename, $metadata);
         $asset2Id = $create->id;
+        unlink($asset2Filename);
 
         // Create relation between these two
         $createRelation = Elvis::createRelation($this->sessionId, 'related', $asset1Id, $asset2Id);
@@ -387,5 +395,15 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         $this->assertEquals($messages->{'field_label.creatorEmail'}, 'Sähköposti');
     }
 
+    /**
+    * Test for the Zip function
+    *
+    * @return void
+    */
+    public function testZipDownload()
+    {
+        // Test without any parameters
+        $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));        
+    }
 
 }
