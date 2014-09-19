@@ -452,7 +452,7 @@ class Elvis
         $zipParameters = array(
             'filename'      => $filename,
             'downloadKind'  => $downloadKind,
-            'assetIds'      => implode($assetIds, ','),
+            'assetIds'      => implode(',', $assetIds),
         );
 
          // Do the query
@@ -476,7 +476,7 @@ class Elvis
     public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
     {
         // Form query URI
-        $uri = $this->formQueryUrl($sessionId, $endpoint, $parameters, $metadata);
+        $uri = $this->formQueryUrl($endpoint, $parameters, $metadata);
 
         // Create new Guzzle client
         $client = new \GuzzleHttp\Client();
@@ -485,16 +485,16 @@ class Elvis
         switch ($endpoint) {
             // For login we dont set the cookie
             case 'login':
-                $response = $client->get($uri, ['debug' => false]);
+                $response = $client->get($uri);
                 break;
 
             // For create we have store file contents and send it as variable Filedata
             case 'create':
-                $response = $client->post($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'body' => ['Filedata' => fopen($filename, 'r')], 'debug' => false]);
+                $response = $client->post($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'body' => ['Filedata' => fopen($filename, 'r')]]);
                 break;
             
             default:
-                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'debug' => false]);
+                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId]);
                 break;
         }
 
@@ -502,7 +502,7 @@ class Elvis
         $response_object = json_decode($response->getBody());
         
         // Check if get 404
-        if ($response->getStatusCode() == 404) {
+        if ($response->getStatusCode() == '404') {
             App::abort($response_object->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
         }
 
@@ -531,7 +531,7 @@ class Elvis
     * @param (array) (metadata) Query parameters that will be converted to JSON array
     * @return (string) The complete URL of the REST request
     */
-    public function formQueryUrl($sessionId, $endpoint, $parameters, $metadata)
+    public function formQueryUrl($endpoint, $parameters, $metadata)
     {
         // Form basic URI
         $uriParts = array();
@@ -547,11 +547,6 @@ class Elvis
             // Remove services, since zip download is at the root
             $uriParts['baseUrl'] = str_replace('services/', '', $uriParts['baseUrl']);
         }
-
-        // Add session if needed, basically everything else except login
-        //if ($sessionId !== null) {
-        //    $uriParts['jsessionId'] = '/;jsessionid=' . $sessionId;
-        //}
 
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
         if ($parameters !== null || $metadata !== null) {
