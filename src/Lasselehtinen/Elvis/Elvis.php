@@ -494,7 +494,7 @@ class Elvis
                 break;
             
             default:
-                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId]);
+                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId]]);
                 break;
         }
 
