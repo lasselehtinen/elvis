@@ -434,6 +434,44 @@ class Elvis
     }
 
     /**
+    * Checkout
+    *
+    * Checks out an asset from the system locking the file for other users.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (assetId) The Elvis id of the asset to be checked out.
+    * @return (object) Object containing all keys and messages.
+    */
+    public function checkout($sessionId, $assetId)
+    {
+        // Form message parameters
+        $checkoutParameters = array('assetId' => $assetId);
+
+        $response = Elvis::query($sessionId, 'checkout', $checkoutParameters);
+
+        return $response;
+    }
+
+    /**
+    * Undocheckout
+    *
+    * Undo a checkout for a single asset
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (assetId) Elvis id of the asset that was checked out.
+    * @return (object) Object containing all keys and messages.
+    */
+    public function undocheckout($sessionId, $assetId)
+    {
+        // Form message parameters
+        $undocheckoutParamaters = array('assetId' => $assetId);
+
+        $response = Elvis::query($sessionId, 'undocheckout', $undocheckoutParamaters);
+
+        return $response;
+    }
+
+    /**
     * Zip download
     *
     * Download originals or previews as a ZIP file
@@ -546,8 +584,17 @@ class Elvis
             $uriParts['baseUrl'] = str_replace('services/', '', $uriParts['baseUrl']);
         }
 
+        // Move assetId for checkout and undocheckout           
+        if($endpoint == 'checkout' || $endpoint == 'undocheckout')
+        {
+            $uriParts[$endpoint] = '/' . $parameters['assetId'];
+            
+            // Set parameters to null, since nothing else left
+            $parameters = null;            
+        }
+
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
-        if ($parameters !== null || $metadata !== null) {
+        if (($parameters !== null || $metadata !== null)) {
             $uriParts['parametersSeparator'] = '?';            
         }
 

@@ -406,4 +406,62 @@ class ElvisTest extends Orchestra\Testbench\TestCase
         $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));        
     }
 
+    /**
+    /*
+    * Test adding and removing metadata values with + and -
+    *
+    * @return void
+    */
+    public function testAddValuesToExistingMetadata()
+    {
+        // Update one metadata field
+        $update = Elvis::update($this->sessionId, $this->assetId, null, ['tags' => 'beach, house']);
+        
+        // Get the asset info again and check that the metadata is updated
+        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
+
+        // Check that we have two tags
+        $this->assertEquals(2, count($searchResults->hits[0]->metadata->tags));
+        $this->assertEquals($searchResults->hits[0]->metadata->tags[0], 'beach');
+        $this->assertEquals($searchResults->hits[0]->metadata->tags[1], 'house');
+
+        // Remove the values and replace them
+        $update = Elvis::update($this->sessionId, $this->assetId, null, ['tags' => '-beach, -house, +villa, +sunny']);
+
+        // Check we that get empty object as return
+        $this->assertInternalType('object', $update);
+
+        // Get the asset info again and check that the metadata is updated
+        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
+
+        // Check that we have two tags
+        $this->assertEquals(2, count($searchResults->hits[0]->metadata->tags));
+        $this->assertEquals($searchResults->hits[0]->metadata->tags[0], 'sunny');
+        $this->assertEquals($searchResults->hits[0]->metadata->tags[1], 'villa');
+    }
+
+    /**
+    /*
+    * Test for checkout and undocheckout
+    *
+    * @return void
+    */
+    public function testCheckoutAndUndocheckout()
+    {
+        // Checkout the asset
+        $checkout = Elvis::checkout($this->sessionId, $this->assetId);
+        
+        // Get the asset info again and check that the checkout flag is updated
+        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);        
+        $this->assertEquals($searchResults->hits[0]->metadata->checkedOutBy, Config::get('elvis::username'));
+        $this->assertInternalType('object', $searchResults->hits[0]->metadata->checkedOut);
+
+        // Undo the asset
+        $undocheckout = Elvis::undocheckout($this->sessionId, $this->assetId);
+        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
+
+        // Check that the checkedOutBy and checkedOut is not set anymore
+        $this->assertEquals(isset($searchResults->hits[0]->metadata->checkedOutBy), false);
+        $this->assertEquals(isset($searchResults->hits[0]->metadata->checkedOut), false);
+    }
 }

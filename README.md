@@ -54,6 +54,8 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Query stats](#querystats)
  - [Log usage stats](#logusagestats)
  - [Messages / Localization](#messages)
+ - [Checkout](#checkout)
+ - [Undocheckout](#undocheckout)
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
@@ -310,9 +312,34 @@ The service returns an object containing all keys and messages. Please note that
 
     $messages->{'field_label.creatorEmail'}
 
+### <a name="checkout">Checkout</a>
+Checks out an asset from the system locking the file for other users.
+
+    $checkout= Elvis::checkout($sessionId, $assetId);
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function.
+assetId | The Elvis id of the asset to be checked out.
+    
+This will return the checkout metadata in the response as an object.
+
+### <a name="undocheckout">Undocheckout</a>
+Undo a checkout for a single asset
+
+    $checkout= Elvis::undocheckout($sessionId, $assetId);
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function.
+assetId | Elvis id of the asset that was checked out.
    
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.
 
     $logout = Elvis::logout($sessionId);
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function.
    
