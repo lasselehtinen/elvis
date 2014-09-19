@@ -3,8 +3,6 @@
 // Import classes to use the classic "Config::get()" approach and App for throwing exceptions
 use Config;
 use App;
-use Guzzle\Http\Client;
-use GuzzleHttp\Post\PostFile;
 
 class Elvis
 {
@@ -499,7 +497,7 @@ class Elvis
         }
 
         // Convert JSON response to StdObject
-        $response_object = json_decode($response->getBody());
+        $response_object = json_decode((string) $response->getBody());
         
         // Check if get 404
         if ($response->getStatusCode() == '404') {
