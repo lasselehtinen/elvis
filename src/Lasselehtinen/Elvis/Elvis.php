@@ -603,12 +603,6 @@ class Elvis
 
         // Add normal key=value parameters if needed, basically everything else except logout
         if ($parameters !== null) {
-            // In case we have boolean parameters, we have to type cast those to strings.
-            foreach ($parameters as $key => $value) {
-                if (is_bool($value)) {
-                    $parameters[$key] = ($value) ? 'true' : 'false';
-                }
-            }
             $queryParameters = array_merge($queryParameters, $parameters);
         }
 
