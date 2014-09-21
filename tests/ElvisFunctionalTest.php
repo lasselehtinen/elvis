@@ -72,7 +72,6 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 
         // Try login
         $sessionId = Elvis::login();
-        var_dump($sessionId);
     }
 
     /**

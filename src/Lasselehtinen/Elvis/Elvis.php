@@ -612,8 +612,27 @@ class Elvis
     public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
     {
         // Form query URI
-        $uri = $this->formQueryUrl($endpoint, $parameters, $metadata);
+        $uri = $this->getQueryUrl($endpoint, $parameters, $metadata);
+        
+        // Get response for this URI
+        $response = $this->getResponse($sessionId, $uri, $endpoint, $filename);
 
+        // Return the API JSON response as object
+        return $response;
+    }
+
+    /**
+    * Check the response for errors and throws necessary exceptions
+    *
+    * @param (string) (sessionId) Session ID to be used for the query
+    * @param (string) (uri) URI of the request
+    * @param (string) (endpoint) API endpoint
+    * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+    * @return (null) Empty response
+    *
+    */
+    public function getResponse($sessionId, $uri, $endpoint, $filename)
+    {
         // Create new Guzzle client
         $client = new \GuzzleHttp\Client();
 
@@ -634,34 +653,16 @@ class Elvis
                 break;
         }
 
-        // Convert JSON response to StdObject
         $json_response = json_decode((string) $response->getBody());
-        
-        // Throw exceptions if necessary
-        $this->checkResponse($response->getStatusCode(), $json_response);
 
-        // Return the API JSON response as object
-        return $json_response;
-    }
-
-    /**
-    * Check the response for errors and throws necessary exceptions
-    *
-    * @param (string) (statusCode) HTTP status code
-    * @param (string) (json_response) JSON encoded response
-    * @return (null) Empty response
-    *
-    */
-    public function checkResponse($statusCode, $json_response)
-    {
         // Check if get 404
-        if ($statusCode == '404') {
+        if ($response->getStatusCode() == '404') {
             App::abort($json_response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
         }
 
         // For login, check if get error
         if (isset($json_response->loginSuccess) && $json_response->loginSuccess === false) {
-            App::abort($statusCode, $json_response->loginFaultMessage);
+            App::abort($response->getStatusCode(), $json_response->loginFaultMessage);
         }
 
         // Check if get an errorcode in the response
@@ -669,7 +670,9 @@ class Elvis
             App::abort($json_response->errorcode, 'Error: ' . $json_response->message);
         }
 
-        return null;
+        // Convert JSON response to StdObject
+        
+        return $json_response;
     }
 
     /**
@@ -683,7 +686,7 @@ class Elvis
     * @param (array) (metadata) Query parameters that will be converted to JSON array
     * @return (string) The complete URL of the REST request
     */
-    public function formQueryUrl($endpoint, $parameters, $metadata = null)
+    public function getQueryUrl($endpoint, $parameters, $metadata = null)
     {
         // Form basic URI
         $baseUrl = array();

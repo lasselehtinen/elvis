@@ -16,7 +16,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
     /**
      * Tests basic query URI with all three parameters
      *
-     * @covers Elvis::formQueryUrl
+     * @covers Elvis::getQueryUrl
      * @group unit
      * @return void
      */
@@ -29,7 +29,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         );
 
         $metadata = array('publicationName:Test');
-        $uri = Elvis::formQueryUrl('updatebulk', $queryParameters, $metadata);
+        $uri = Elvis::getQueryUrl('updatebulk', $queryParameters, $metadata);
 
         // Form expected URI
         $expected_uri = Config::get('elvis::api_endpoint_uri') . 'updatebulk?q=gtin:123&async=1&metadata=["publicationName:Test"]';
@@ -39,7 +39,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
     /**
      * Tests basic query URI with all three parameters
      *
-     * @covers Elvis::formQueryUrl
+     * @covers Elvis::getQueryUrl
      * @group unit
      * @return void
      */
@@ -52,7 +52,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
             'assetIds'      => 'assetId1,assetId2'
         );
 
-        $uri = Elvis::formQueryUrl('zip', $zipParameters);
+        $uri = Elvis::getQueryUrl('zip', $zipParameters);
 
         // Form expected URI
         $hostname = str_replace('services/', '', Config::get('elvis::api_endpoint_uri'));
@@ -63,7 +63,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
     /**
      * Tests URI for checkout
      *
-     * @covers Elvis::formQueryUrl
+     * @covers Elvis::getQueryUrl
      * @group unit
      * @return void
      */
@@ -72,7 +72,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         // Form zip parameters
         $checkoutParameters = array('assetId' => 'assetId');
 
-        $uri = Elvis::formQueryUrl('checkout', $checkoutParameters);
+        $uri = Elvis::getQueryUrl('checkout', $checkoutParameters);
 
         // Form expected URI
         $expected_uri = Config::get('elvis::api_endpoint_uri') . 'checkout/assetId';
