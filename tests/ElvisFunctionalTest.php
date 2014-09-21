@@ -462,4 +462,26 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertEquals(isset($searchResults->hits[0]->metadata->checkedOutBy), false);
         $this->assertEquals(isset($searchResults->hits[0]->metadata->checkedOut), false);
     }
+
+    /**
+    * Test Authkey creation
+    *
+    * @return void
+    */
+    public function testCreateAndRevokeAuthkey()
+    {
+        // Checkout the asset
+        $createAuthKey = Elvis::createAuthKey($this->sessionId, 'Test', '2999-01-01', array($this->assetId));
+        
+        // Check that response is correct type
+        $this->assertInternalType('object', $createAuthKey);
+        
+        // Check that we get authKey
+         $this->assertInternalType('string', $createAuthKey->authKey);
+
+        // Revoke the auth key
+        $revokeAuthKeys = Elvis::revokeAuthKeys($this->sessionId, array($this->assetId));
+
+        $this->assertInternalType('object', $createAuthKey);
+    }
 }
