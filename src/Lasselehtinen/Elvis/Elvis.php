@@ -537,7 +537,24 @@ class Elvis
         // Convert JSON response to StdObject
         $response_object = json_decode((string) $response->getBody());
         
-        // Check if get 404
+        // Throw exceptions if necessary
+        $this->checkResponse($response, $response_object);
+
+        // Return the API JSON response as object
+        return $response_object;
+    }
+
+    /**
+    * Check the response for errors and throws necessary exceptions
+    *
+    * @param (object) (response) Guzzle HTTP response object
+    * @param (string) (response_object) JSON encoded response
+    * @return (bool) Empty response
+    *
+    */
+    public function checkResponse($response, $response_object)
+    {
+         // Check if get 404
         if ($response->getStatusCode() == '404') {
             App::abort($response_object->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
         }
@@ -552,8 +569,7 @@ class Elvis
             App::abort($response_object->errorcode, 'Error: ' . $response_object->message);
         }
 
-        // Return the API JSON response as object
-        return $response_object;
+        return null;
     }
 
     /**
