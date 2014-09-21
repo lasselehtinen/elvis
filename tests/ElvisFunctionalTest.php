@@ -1,6 +1,6 @@
 <?php
 
-class ElvisTest extends Orchestra\Testbench\TestCase
+class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 {
     protected $sessionId;
     protected $assetId;
@@ -407,7 +407,6 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     }
 
     /**
-    /*
     * Test adding and removing metadata values with + and -
     *
     * @return void
@@ -441,7 +440,6 @@ class ElvisTest extends Orchestra\Testbench\TestCase
     }
 
     /**
-    /*
     * Test for checkout and undocheckout
     *
     * @return void

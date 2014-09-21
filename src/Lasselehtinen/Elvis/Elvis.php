@@ -484,7 +484,7 @@ class Elvis
     */
     public function zip($sessionId, $filename, $downloadKind, $assetIds)
     {
-        // Form copy parameters
+        // Form zip parameters
         $zipParameters = array(
             'filename'      => $filename,
             'downloadKind'  => $downloadKind,
@@ -567,35 +567,61 @@ class Elvis
     * @param (array) (metadata) Query parameters that will be converted to JSON array
     * @return (string) The complete URL of the REST request
     */
-    public function formQueryUrl($endpoint, $parameters, $metadata)
+    public function formQueryUrl($endpoint, $parameters, $metadata = null)
     {
         // Form basic URI
-        $uriParts = array();
-        $uriParts['baseUrl'] = Config::get('elvis::api_endpoint_uri');
-        $uriParts['endpoint'] = $endpoint;
+        $baseUrl = array();
+        $baseUrl['baseUrl'] = Config::get('elvis::api_endpoint_uri');
+        $baseUrl['endpoint'] = $endpoint;
 
         // Add filename to Zip download
-        if($endpoint == 'zip')
+        if($endpoint === 'zip')
         {
-            $uriParts['zipFilename'] = '/' . $parameters['filename'];
+            $baseUrl['zipFilename'] = '/' . $parameters['filename'];
             unset($parameters['filename']);
             
             // Remove services, since zip download is at the root
-            $uriParts['baseUrl'] = str_replace('services/', '', $uriParts['baseUrl']);
+            $baseUrl['baseUrl'] = str_replace('services/', '', $baseUrl['baseUrl']);
         }
 
         // Move assetId for checkout and undocheckout           
-        if($endpoint == 'checkout' || $endpoint == 'undocheckout')
+        if($endpoint === 'checkout' || $endpoint === 'undocheckout')
         {
-            $uriParts[$endpoint] = '/' . $parameters['assetId'];
+            $baseUrl[$endpoint] = '/' . $parameters['assetId'];
             
             // Set parameters to null, since nothing else left
             $parameters = null;            
         }
 
+        // Form query parameter
+        $queryParameters = $this->formQueryParameters($parameters, $metadata);
+
+        // Combine base url and query parameters
+        $combinedUrl = array_merge($baseUrl, $queryParameters);
+        
+        // Form complete URI by imploding the array
+        $uri = implode('', $combinedUrl);
+
+        return $uri;
+    }
+
+    /**
+    * Form query parameters
+    *
+    * Creates the query parameters
+    *
+    * @param (array) (parameters) All query parameters
+    * @param (array) (metadata) Query parameters that will be converted to JSON array
+    * @return (array) The query parameters to append
+    */
+    public function formQueryParameters($parameters, $metadata)
+    {
+        // Init array
+        $query = array();
+
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
         if (($parameters !== null || $metadata !== null)) {
-            $uriParts['parametersSeparator'] = '?';            
+            $query['parametersSeparator'] = '?';            
         }
 
         // Init query parameters array
@@ -614,12 +640,9 @@ class Elvis
 
         // Build query if necessary
         if (isset($queryParameters)) {
-            $uriParts['parameters'] = http_build_query($queryParameters);
+            $query['parameters'] = http_build_query($queryParameters);
         }
 
-        // Form complete URI by imploding the array
-        $uri = implode('', $uriParts);
-
-        return $uri;
+        return $query;
     }
 }
