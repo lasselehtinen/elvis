@@ -635,38 +635,38 @@ class Elvis
         }
 
         // Convert JSON response to StdObject
-        $response_object = json_decode((string) $response->getBody());
+        $json_response = json_decode((string) $response->getBody());
         
         // Throw exceptions if necessary
-        $this->checkResponse($response, $response_object);
+        $this->checkResponse($response, $json_response);
 
         // Return the API JSON response as object
-        return $response_object;
+        return $json_response;
     }
 
     /**
     * Check the response for errors and throws necessary exceptions
     *
     * @param (\GuzzleHttp\Message\ResponseInterface) (response) Guzzle HTTP response interface
-    * @param (string) (response_object) JSON encoded response
+    * @param (string) (json_response) JSON encoded response
     * @return (null) Empty response
     *
     */
-    public function checkResponse($response, $response_object)
+    public function checkResponse($response, $json_response)
     {
          // Check if get 404
         if ($response->getStatusCode() == '404') {
-            App::abort($response_object->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
+            App::abort($json_response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
         }
 
         // For login, check if get error
-        if (isset($response_object->loginSuccess) && $response_object->loginSuccess === false) {
-            App::abort($response->getStatusCode(), $response_object->loginFaultMessage);
+        if (isset($json_response->loginSuccess) && $json_response->loginSuccess === false) {
+            App::abort($response->getStatusCode(), $json_response->loginFaultMessage);
         }
 
         // Check if get an errorcode in the response
-        if (isset($response_object->errorcode)) {
-            App::abort($response_object->errorcode, 'Error: ' . $response_object->message);
+        if (isset($json_response->errorcode)) {
+            App::abort($json_response->errorcode, 'Error: ' . $json_response->message);
         }
 
         return null;
