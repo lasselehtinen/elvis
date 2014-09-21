@@ -622,7 +622,7 @@ class Elvis
     }
 
     /**
-    * Check the response for errors and throws necessary exceptions
+    * Do the query and check the response for errors and throws necessary exceptions
     *
     * @param (string) (sessionId) Session ID to be used for the query
     * @param (string) (uri) URI of the request
@@ -636,7 +636,7 @@ class Elvis
         // Create new Guzzle client
         $client = new \GuzzleHttp\Client();
 
-        // Form Guzzle query depending on the endpaint
+        // Form Guzzle query depending on the endpoint
         switch ($endpoint) {
             // For login we dont set the cookie
             case 'login':
@@ -653,26 +653,39 @@ class Elvis
                 break;
         }
 
+        // Convert JSON response to StdObject
         $json_response = json_decode((string) $response->getBody());
 
-        // Check if get 404
-        if ($response->getStatusCode() == '404') {
+        // Check the response and throw exceptions if necessary
+        $this->checkResponse($json_response, $response->getStatusCode());
+
+        return $json_response;
+    }
+    
+    /**
+    * Check the response and return exceptions if necessary
+    *
+    * @param (object) (json_response) Object containing the JSON response
+    * @param (string) (statusCode) HTTP status code
+    * @return (object) Return object response
+    *
+    */
+    public function checkResponse($json_response, $statusCode)
+    {
+         // Check if get 404
+        if ($statusCode == '404') {
             App::abort($json_response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
         }
 
         // For login, check if get error
         if (isset($json_response->loginSuccess) && $json_response->loginSuccess === false) {
-            App::abort($response->getStatusCode(), $json_response->loginFaultMessage);
+            App::abort($statusCode, $json_response->loginFaultMessage);
         }
 
         // Check if get an errorcode in the response
         if (isset($json_response->errorcode)) {
             App::abort($json_response->errorcode, 'Error: ' . $json_response->message);
         }
-
-        // Convert JSON response to StdObject
-        
-        return $json_response;
     }
 
     /**
