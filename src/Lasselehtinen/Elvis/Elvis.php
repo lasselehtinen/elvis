@@ -638,7 +638,7 @@ class Elvis
         $json_response = json_decode((string) $response->getBody());
         
         // Throw exceptions if necessary
-        $this->checkResponse($response, $json_response);
+        $this->checkResponse($response->getStatusCode(), $json_response);
 
         // Return the API JSON response as object
         return $json_response;
@@ -647,21 +647,21 @@ class Elvis
     /**
     * Check the response for errors and throws necessary exceptions
     *
-    * @param (\GuzzleHttp\Message\ResponseInterface) (response) Guzzle HTTP response interface
+    * @param (string) (statusCode) HTTP status code
     * @param (string) (json_response) JSON encoded response
     * @return (null) Empty response
     *
     */
-    public function checkResponse($response, $json_response)
+    public function checkResponse($statusCode, $json_response)
     {
-         // Check if get 404
-        if ($response->getStatusCode() == '404') {
+        // Check if get 404
+        if ($statusCode == '404') {
             App::abort($json_response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
         }
 
         // For login, check if get error
         if (isset($json_response->loginSuccess) && $json_response->loginSuccess === false) {
-            App::abort($response->getStatusCode(), $json_response->loginFaultMessage);
+            App::abort($statusCode, $json_response->loginFaultMessage);
         }
 
         // Check if get an errorcode in the response
