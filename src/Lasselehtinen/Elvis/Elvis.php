@@ -628,7 +628,7 @@ class Elvis
     * @param (string) (uri) URI of the request
     * @param (string) (endpoint) API endpoint
     * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
-    * @return (null) Empty response
+    * @return (object) Return object response
     *
     */
     public function getResponse($sessionId, $uri, $endpoint, $filename)
