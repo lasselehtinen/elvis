@@ -576,6 +576,84 @@ class Elvis
     }
 
     /**
+    * Update authkey
+    *
+    * Update an authKey in Elvis. With this API call it is possible to update certain properties of an authKey. Please note that it is not possible to add or remove assets from an authKey once it has been created.
+    *
+    * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+    * @param (string) (key) The authKey which will be updated.
+    * @param (string) (subject) AuthKey subject
+    * @param (string) (validUntil) Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
+    * @param (string) (description) AuthKey description that will be shown to receiver of the link.
+    * @param (bool) (downloadOriginal) Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
+    * @param (bool) (downloadPreview) Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
+    * @param (bool) (requestApproval) Request for approval.
+    * @param (bool) (requestUpload) Allow uploading new files, must be true when asset id's is not specified.
+    * @param (string) (containerId) Container asset id which uploaded files are related to. Only relevant when requestUpload=true.
+    * @param (string) (importFolderPath) folderPath where files are uploaded. Required when requestUpload=true.
+    * @param (string) (notifyEmail) Email address to send notifications to when upload or approval is finished. Only relevant when requestUpload=true or requestApproval=true.
+    * @param (string) (sort) Client setting, specify a comma-delimited list of fields to sort the results on. Follows the same behavior as sort in REST - search call
+    * @param (string) (viewMode) Client setting. Possible values 'thumbnail', 'list' or 'mason'.
+    * @param (array) (thumbnailFields) Client setting, array containing list of fieldnames for showing metadata in the thumbnail view.
+    * @param (array) (listviewFields) Client setting, array containing list of fieldnames for showing metadata in the list view.
+    * @param (array) (filmstripFields) Client setting, array containing list of fieldnames for showing metadata in the filmstrip view.
+    * @param (int) (thumbnailZoomLevel) Client setting, thumbnail zoom level in the thumbnail view.
+    * @param (int) (listviewZoomLevel) Client setting, thumbnail zoom level in the list view.
+    * @param (int) (filmstripZoomLevel) Client setting, thumbnail zoom level in the filmstrip view.
+    * @return (object)
+    */
+    public function updateAuthKey(
+        $sessionId,
+        $key,
+        $subject,
+        $validUntil,
+        $description = null,
+        $downloadOriginal = false,
+        $downloadPreview = false,
+        $requestApproval = false,
+        $requestUpload = false,
+        $containerId = null,
+        $importFolderPath = null,
+        $notifyEmail = null,
+        $sort = null,
+        $viewMode = 'thumbnail',
+        $thumbnailFields = null,
+        $listviewFields = null,
+        $filmstripFields = null,
+        $thumbnailZoomLevel = null,
+        $listviewZoomLevel = null,
+        $filmstripZoomLevel = null
+    ) {
+        // Form zip parameters
+        $updateAuthKeyParameters = array(
+            'key'                   => $key,
+            'subject'               => $subject,
+            'validUntil'            => $validUntil,
+            'description'           => $description,
+            'downloadOriginal'      => $downloadOriginal,
+            'downloadPreview'       => $downloadPreview,
+            'requestApproval'       => $requestApproval,
+            'requestUpload'         => $requestUpload,
+            'containerId'           => $containerId,
+            'importFolderPath'      => $importFolderPath,
+            'notifyEmail'           => $notifyEmail,
+            'sort'                  => $sort,
+            'viewMode'              => $viewMode,
+            'thumbnailFields'       => $thumbnailFields,
+            'listviewFields'        => $listviewFields,
+            'filmstripFields'       => $filmstripFields,
+            'thumbnailZoomLevel'    => $thumbnailZoomLevel,
+            'listviewZoomLevel'     => $listviewZoomLevel,
+            'filmstripZoomLevel'    => $filmstripZoomLevel
+        );
+
+         // Do the query
+        $response = Elvis::query($sessionId, 'updateAuthKey', $updateAuthKeyParameters);
+
+        return $response;
+    }
+
+    /**
     * RevokeAuthKeys
     *
     * Revoke a previously created authKey.

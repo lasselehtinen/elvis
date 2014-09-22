@@ -57,6 +57,7 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Checkout](#checkout)
  - [Undocheckout](#undocheckout)
  - [CreateAuthKey](#createAuthKey)
+ - [UpdateAuthKey](#updateAuthKey)
  - [RevokeAuthKeys](#revokeAuthKeys)
  - [Logout](#logout)
 
@@ -347,6 +348,38 @@ sessionId | Session ID returned by the login function.
 subject | AuthKey subject
 validUntil | Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
 assetIds | Array of of asset id's to share, do not specify for a pure upload request (requestUpload must be true is this case)
+description | AuthKey description that will be shown to receiver of the link.
+downloadOriginal | Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
+downloadPreview | Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
+requestApproval | Request for approval.
+requestUpload | Allow uploading new files, must be true when asset id's is not specified.
+containerId | Container asset id which uploaded files are related to. Only relevant when requestUpload=true.
+importFolderPath | folderPath where files are uploaded. Required when requestUpload=true.
+notifyEmail | Email address to send notifications to when upload or approval is finished. Only relevant when requestUpload=true or requestApproval=true.
+sort | Client setting, specify a comma-delimited list of fields to sort the results on. Follows the same behavior as sort in REST - search call
+viewMode | Client setting. Possible values 'thumbnail', 'list' or 'mason'.
+thumbnailFields | Client setting, array containing list of fieldnames for showing metadata in the thumbnail view.
+listviewFields | Client setting, array containing list of fieldnames for showing metadata in the list view.
+filmstripFields | Client setting, array containing list of fieldnames for showing metadata in the filmstrip view.
+thumbnailZoomLevel | Client setting, thumbnail zoom level in the thumbnail view.
+listviewZoomLevel | Client setting, thumbnail zoom level in the list view.
+filmstripZoomLevel | Client setting, thumbnail zoom level in the filmstrip view.
+
+Returns object containing the authKey and links to different clients.
+
+### <a name="updateAuthKey">UpdateAuthKey</a>
+Update an authKey in Elvis.
+
+With this API call it is possible to update certain properties of an authKey. Please note that it is not possible to add or remove assets from an authKey once it has been created.
+
+    $updateAuthKey = Elvis::updateAuthKey($sessionId, $authKey, 'Test', '2999-02-02');
+
+Parameter | Description
+--------- | -----------
+sessionId | Session ID returned by the login function.
+key | The authKey which will be updated.
+subject | AuthKey subject
+validUntil | Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
 description | AuthKey description that will be shown to receiver of the link.
 downloadOriginal | Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
 downloadPreview | Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
