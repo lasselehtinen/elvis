@@ -67,9 +67,10 @@ class Elvis
             'num'                   => $num,
             'sort'                  => $sort,
             'metadataToReturn'      => $metadataToReturn,
-            'facets'        => $facets,
-            'facetSelection'        => $facetSelection,
-            'appendRequestSecret'   => $appendRequestSecret
+            'appendRequestSecret'   => $appendRequestSecret,
+            'facets'                => $facets,
+            'facetSelection'        => $facetSelection
+        ]
 
         // Call the search REST API
         $response = Elvis::query($sessionId, 'search', $searchParameters);
