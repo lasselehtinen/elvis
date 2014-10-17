@@ -54,19 +54,22 @@ class Elvis
      * @param (string) (sort) The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
      * @param (string) (metadataToReturn) Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
      * @param (bool) (appendRequestSecret) When set to true will append an encrypted code to the thumbnail, preview and original URLs.
+     * @param (string) (facetsToReturn) Comma-delimited list fields to return facet for. For example: facets=tags,assetDomain.
+     * @param (array) (facetSelection) Array of facets and values where the facet is the key and the comma-delimited list of values that should be 'selected' for a given facet as the value.
      * @return (object) List of search results
      */
-    public function search($sessionId, $q, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false)
+    public function search($sessionId, $q, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
     {
         // Form search parameters
-        $searchParameters = array(
+        $searchParameters = [
             'q'                     => $q,
             'start'                 => $start,
             'num'                   => $num,
             'sort'                  => $sort,
             'metadataToReturn'      => $metadataToReturn,
+            'facets'        => $facets,
+            'facetSelection'        => $facetSelection,
             'appendRequestSecret'   => $appendRequestSecret
-        );
 
         // Call the search REST API
         $response = Elvis::query($sessionId, 'search', $searchParameters);
@@ -803,6 +806,17 @@ class Elvis
             $parameters = null;            
         }
 
+        // Cast the selected facets in to the correct form.
+        if(!empty($parameters['facetSelection'])){
+            $facetSelection = $this->rekeyFacetSelection($parameters['facetSelection']);
+
+            // Remove the original facet selection
+            unset($parameters['facetSelection']);
+
+            // Add the facet selection terms to the parameters array.
+            $parameters = array_merge($parameters, $facetSelection);
+        }
+
         // Form query parameter
         $queryParameters = $this->formQueryParameters($parameters, $metadata);
 
@@ -854,5 +868,23 @@ class Elvis
         }
 
         return $query;
+    }
+
+    /**
+     * Casts the facet selections into the correct Elvis format.
+     *
+     * @param (array) facetSelection
+     *
+     * @return array
+     */
+    private function rekeyFacetSelection($facetSelection){
+        $result = [];
+
+        foreach ($facetSelection as $facet => $value){
+            $key = "facet.{$facet}.selection";
+            $result[$key] = $value;
+        }
+
+        return $result;
     }
 }
