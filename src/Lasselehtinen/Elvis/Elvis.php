@@ -16,10 +16,10 @@ class Elvis
     public function login()
     {
         // Form login parameters
-        $loginParameters = [
+        $loginParameters = array(
             'username' => Config::get('elvis::username'),
             'password' => Config::get('elvis::password')
-        ];
+        );
 
         $response = Elvis::query(null, 'login', $loginParameters);
 
@@ -54,23 +54,19 @@ class Elvis
      * @param (string) (sort) The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
      * @param (string) (metadataToReturn) Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
      * @param (bool) (appendRequestSecret) When set to true will append an encrypted code to the thumbnail, preview and original URLs.
-     * @param (string) (facetsToReturn) Comma-delimited list fields to return facet for. For example: facets=tags,assetDomain.
-     * @param (array) (facetSelection) Array of facets and values where the facet is the key and the comma-delimited list of values that should be 'selected' for a given facet as the value.
      * @return (object) List of search results
      */
-    public function search($sessionId, $q, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
+    public function search($sessionId, $q, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false)
     {
         // Form search parameters
-        $searchParameters = [
+        $searchParameters = array(
             'q'                     => $q,
             'start'                 => $start,
             'num'                   => $num,
             'sort'                  => $sort,
             'metadataToReturn'      => $metadataToReturn,
-            'facets'        => $facets,
-            'facetSelection'        => $facetSelection,
             'appendRequestSecret'   => $appendRequestSecret
-        ];
+        );
 
         // Call the search REST API
         $response = Elvis::query($sessionId, 'search', $searchParameters);
@@ -94,13 +90,13 @@ class Elvis
     public function browse($sessionId, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
     {
         // Form browse parameters
-        $browseParameters = [
+        $browseParameters = array(
             'path'              => $path,
             'fromRoot'          => $fromRoot,
             'includeFolders'    => $includeFolders,
             'includeAsset'      => $includeAsset,
             'includeExtensions' => $includeExtensions
-        ];
+        );
 
         // Call browse REST API
         $response = Elvis::query($sessionId, 'browse', $browseParameters);
@@ -156,9 +152,9 @@ class Elvis
     public function update($sessionId, $id, $filename, $metadata)
     {
         // Form update parameters
-        $updateParameters = [
+        $updateParameters = array(
             'id' => $id,
-        ];
+        );
 
         $response = Elvis::query($sessionId, 'update', $updateParameters, $metadata, $filename);
 
@@ -179,10 +175,10 @@ class Elvis
     public function updatebulk($sessionId, $query, $metadata, $async = false)
     {
         // Form updatebulk parameters
-        $updateBulk = [
+        $updateBulk = array(
             'q'        => $query,
             'async'    => $async
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'updatebulk', $updateBulk, $metadata);
@@ -207,14 +203,14 @@ class Elvis
     public function move($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false)
     {
          // Form move parameters
-        $moveParameters = [
+        $moveParameters = array(
             'source'                => $source,
             'target'                => $target,
             'folderReplacePolicy'   => $folderReplacePolicy,
             'fileReplacePolicy'     => $fileReplacePolicy,
             'filterQuery'           => $filterQuery,
             'flattenFolders'        => $flattenFolders
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'move', $moveParameters);
@@ -240,7 +236,7 @@ class Elvis
     public function copy($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
     {
         // Form copy parameters
-        $copyParameters = [
+        $copyParameters = array(
             'source'                => $source,
             'target'                => $target,
             'folderReplacePolicy'   => $folderReplacePolicy,
@@ -248,7 +244,7 @@ class Elvis
             'filterQuery'           => $filterQuery,
             'flattenFolders'        => $flattenFolders,
             'async'                 => $async
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'copy', $copyParameters);
@@ -277,12 +273,12 @@ class Elvis
         }
 
         // Form remove parameters
-        $removeParameters = [
+        $removeParameters = array(
             'q'             => $q,
             'ids'           => $idsCommaSeparated,
             'folderPath'    => $folderPath,
             'async'         => $async
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'remove', $removeParameters);
@@ -302,9 +298,9 @@ class Elvis
     public function createFolder($sessionId, $path)
     {
         // Form createFolder parameters
-        $createFolderParameters = [
+        $createFolderParameters = array(
             'path'                => $path
-        ];
+        );
 
         $response = Elvis::query($sessionId, 'createFolder', $createFolderParameters);
 
@@ -326,11 +322,11 @@ class Elvis
     public function createRelation($sessionId, $relationType, $target1Id, $target2Id, $metadata = null)
     {
         // Form createRelation parameters
-        $createRelationParameters = [
+        $createRelationParameters = array(
             'relationType'  => $relationType,
             'target1Id'     => $target1Id,
             'target2Id'     => $target2Id
-        ];
+        );
 
         $response = Elvis::query($sessionId, 'createRelation', $createRelationParameters, $metadata);
 
@@ -349,9 +345,9 @@ class Elvis
     public function removeRelation($sessionId, $relationIds)
     {
         // Form createRelation parameters
-        $removeRelationParameters = [
+        $removeRelationParameters = array(
             'relationIds'  => implode(',', $relationIds)
-        ];
+        );
 
         $response = Elvis::query($sessionId, 'removeRelation', $removeRelationParameters);
 
@@ -361,7 +357,7 @@ class Elvis
     /**
     * Query stats
     *
-    * Query stats database for usage statistics.
+    * Query stats database for usage statistics. 
     *
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @param (string) (queryFile) The path to the SQL file with the query you want to run.
@@ -369,13 +365,13 @@ class Elvis
     * @param (array) ($additionalQueryParameters) Array of additional query parameters passed to the SQL in name => value format.
     * @return (object) Returns an empty 200 OK status.
     */
-    public function queryStats($sessionId, $queryFile, $num = 1000, $additionalQueryParameters = [])
+    public function queryStats($sessionId, $queryFile, $num = 1000, $additionalQueryParameters = array())
     {
         // Form createRelation parameters
-        $queryStatsParameters = [
+        $queryStatsParameters = array(
             'queryFile' => $queryFile,
             'num'       => $num
-        ];
+        );
 
         // Add additional parameters
         $queryStatsParameters = array_merge($queryStatsParameters, $additionalQueryParameters);
@@ -396,13 +392,13 @@ class Elvis
     * @param (array) ($additionalQueryParameters) Array of additional query parameters that are logged as details for the action.
     * @return (object) This call does not return a value, it only returns an http 200 status OK.
     */
-    public function logUsage($sessionId, $assetId, $action, $additionalQueryParameters = [])
+    public function logUsage($sessionId, $assetId, $action, $additionalQueryParameters = array())
     {
         // Form createRelation parameters
-        $logUsageParameters = [
+        $logUsageParameters = array(
             'assetId'   => $assetId,
             'action'    => $action
-        ];
+        );
 
         // Add additional parameters
         $logUsageParameters = array_merge($logUsageParameters, $additionalQueryParameters);
@@ -426,11 +422,11 @@ class Elvis
     public function messages($sessionId, $localeChain = null, $ifModifiedSince = null, $bundle = null)
     {
         // Form message parameters
-        $messagesParameters = [
+        $messagesParameters = array(
             'localeChain'       => $localeChain,
             'ifModifiedSince'   => $ifModifiedSince,
             'bundle'            => $bundle
-        ];
+        );
 
         $response = Elvis::query($sessionId, 'messages', $messagesParameters);
 
@@ -449,7 +445,7 @@ class Elvis
     public function checkout($sessionId, $assetId)
     {
         // Form message parameters
-        $checkoutParameters = ['assetId' => $assetId];
+        $checkoutParameters = array('assetId' => $assetId);
 
         $response = Elvis::query($sessionId, 'checkout', $checkoutParameters);
 
@@ -468,7 +464,7 @@ class Elvis
     public function undocheckout($sessionId, $assetId)
     {
         // Form message parameters
-        $undocheckoutParamaters = ['assetId' => $assetId];
+        $undocheckoutParamaters = array('assetId' => $assetId);
 
         $response = Elvis::query($sessionId, 'undocheckout', $undocheckoutParamaters);
 
@@ -483,17 +479,17 @@ class Elvis
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @param (string) (filename) Filename of the zip file to be created
     * @param (string) (downloadKind) The type of the files that are included in the archive. Possible values are original or preview.
-    * @param (array) (assetIds) Array containing the asset to be included in the Zip file
-    * @return (object)
+    * @param (array) (assetIds) Array containing the asset to be included in the Zip file 
+    * @return (object) 
     */
     public function zip($sessionId, $filename, $downloadKind, $assetIds)
     {
         // Form zip parameters
-        $zipParameters = [
+        $zipParameters = array(
             'filename'      => $filename,
             'downloadKind'  => $downloadKind,
             'assetIds'      => implode(',', $assetIds),
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'zip', $zipParameters);
@@ -551,7 +547,7 @@ class Elvis
         $filmstripZoomLevel = null
     ) {
         // Form zip parameters
-        $createAuthKeyParameters = [
+        $createAuthKeyParameters = array(
             'subject'               => $subject,
             'validUntil'            => $validUntil,
             'assetIds'              => implode(',', $assetIds),
@@ -571,7 +567,7 @@ class Elvis
             'thumbnailZoomLevel'    => $thumbnailZoomLevel,
             'listviewZoomLevel'     => $listviewZoomLevel,
             'filmstripZoomLevel'    => $filmstripZoomLevel
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'createAuthKey', $createAuthKeyParameters);
@@ -629,7 +625,7 @@ class Elvis
         $filmstripZoomLevel = null
     ) {
         // Form zip parameters
-        $updateAuthKeyParameters = [
+        $updateAuthKeyParameters = array(
             'key'                   => $key,
             'subject'               => $subject,
             'validUntil'            => $validUntil,
@@ -649,7 +645,7 @@ class Elvis
             'thumbnailZoomLevel'    => $thumbnailZoomLevel,
             'listviewZoomLevel'     => $listviewZoomLevel,
             'filmstripZoomLevel'    => $filmstripZoomLevel
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'updateAuthKey', $updateAuthKeyParameters);
@@ -669,9 +665,9 @@ class Elvis
     public function revokeAuthKeys($sessionId, $keys)
     {
         // Form zip parameters
-        $revokeAuthKeysParameters = [
+        $revokeAuthKeysParameters = array(
             'keys'      => implode(',', $keys),
-        ];
+        );
 
          // Do the query
         $response = Elvis::query($sessionId, 'revokeAuthKeys', $revokeAuthKeysParameters);
@@ -695,7 +691,7 @@ class Elvis
     {
         // Form query URI
         $uri = $this->getQueryUrl($endpoint, $parameters, $metadata);
-
+        
         // Get response for this URI
         $response = $this->getResponse($sessionId, $uri, $endpoint, $filename);
 
@@ -729,7 +725,7 @@ class Elvis
             case 'create':
                 $response = $client->post($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'body' => ['Filedata' => fopen($filename, 'r')]]);
                 break;
-
+            
             default:
                 $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId]]);
                 break;
@@ -743,7 +739,7 @@ class Elvis
 
         return $json_response;
     }
-
+    
     /**
     * Check the response and return exceptions if necessary
     *
@@ -784,7 +780,7 @@ class Elvis
     public function getQueryUrl($endpoint, $parameters, $metadata = null)
     {
         // Form basic URI
-        $baseUrl = [];
+        $baseUrl = array();
         $baseUrl['baseUrl'] = Config::get('elvis::api_endpoint_uri');
         $baseUrl['endpoint'] = $endpoint;
 
@@ -793,29 +789,18 @@ class Elvis
         {
             $baseUrl['zipFilename'] = '/' . $parameters['filename'];
             unset($parameters['filename']);
-
+            
             // Remove services, since zip download is at the root
             $baseUrl['baseUrl'] = str_replace('services/', '', $baseUrl['baseUrl']);
         }
 
-        // Move assetId for checkout and undocheckout
+        // Move assetId for checkout and undocheckout           
         if($endpoint === 'checkout' || $endpoint === 'undocheckout')
         {
             $baseUrl[$endpoint] = '/' . $parameters['assetId'];
-
+            
             // Set parameters to null, since nothing else left
-            $parameters = null;
-        }
-
-        // Cast the selected facets in to the correct form.
-        if(!empty($parameters['facetSelection'])){
-            $facetSelection = $this->rekeyFacetSelection($parameters['facetSelection']);
-
-            // Remove the original facet selection
-            unset($parameters['facetSelection']);
-
-            // Add the facet selection terms to the parameters array.
-            $parameters = array_merge($parameters, $facetSelection);
+            $parameters = null;            
         }
 
         // Form query parameter
@@ -823,7 +808,7 @@ class Elvis
 
         // Combine base url and query parameters
         $combinedUrl = array_merge($baseUrl, $queryParameters);
-
+        
         // Form complete URI by imploding the array
         $uri = implode('', $combinedUrl);
 
@@ -842,15 +827,15 @@ class Elvis
     public function formQueryParameters($parameters, $metadata)
     {
         // Init array
-        $query = [];
+        $query = array();
 
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
         if (($parameters !== null || $metadata !== null)) {
-            $query['parametersSeparator'] = '?';
+            $query['parametersSeparator'] = '?';            
         }
 
         // Init query parameters array
-        $queryParameters = [];
+        $queryParameters = array();
 
         // Add normal key=value parameters if needed, basically everything else except logout
         if ($parameters !== null) {
@@ -859,7 +844,7 @@ class Elvis
 
         // Add metadata='JSON encoded values'
         if ($metadata !== null) {
-            $jsonMetadata = ['metadata' => json_encode($metadata)];
+            $jsonMetadata = array('metadata' => json_encode($metadata));
             $queryParameters = array_merge($queryParameters, $jsonMetadata);
         }
 
@@ -869,22 +854,5 @@ class Elvis
         }
 
         return $query;
-    }
-
-	/**
-     * Casts the facet selections into the correct Elvis format
-     * @param (array) facetSelection
-     *
-     * @return array
-     */
-    private function rekeyFacetSelection($facetSelection){
-        $result = [];
-
-        foreach ($facetSelection as $facet => $value){
-            $key = "facet.{$facet}.selection";
-            $result[$key] = $value;
-        }
-
-        return $result;
     }
 }
