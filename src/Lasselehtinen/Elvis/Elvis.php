@@ -45,7 +45,7 @@ class Elvis
     /**
      * Search
      *
-     * Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search.
+     * Wrapper for the search API, returns the hits found. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search.
      *
      * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
      * @param (string) (q) Actual Lucene query, you can find more details in https://elvis.tenderapp.com/kb/technical/query-syntax
