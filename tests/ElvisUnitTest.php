@@ -37,6 +37,46 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
     }
 
     /**
+     * Tests search URI with facet data
+     *
+     * @covers Elvis::getQueryUrl
+     * @group unit
+     * @return void
+     */
+    public function testSearchWithFacetsUri()
+    {
+        $queryParameters = array(
+            'facets'   => 'tags,extension',
+        );
+
+        $uri = Elvis::getQueryUrl('search', $queryParameters);
+
+        // Form expected URI
+        $expected_uri = Config::get('elvis::api_endpoint_uri') . 'search?facets=tags,extension';
+        $this->assertEquals(urldecode($uri), $expected_uri);
+    }
+
+    /**
+     * Tests search URI with selected facet data.
+     *
+     * @covers Elvis::getQueryUrl
+     * @group unit
+     * @return void
+     */
+    public function testSearchWithSelectedFacetsUri()
+    {
+        $queryParameters = array(
+            'facetSelection' => ['tags' => 'beach', 'extension' => 'jpg,png'],
+        );
+
+        $uri = Elvis::getQueryUrl('search', $queryParameters);
+
+        // Form expected URI
+        $expected_uri = Config::get('elvis::api_endpoint_uri') . 'search?facet.tags.selection=beach&facet.extension.selection=jpg,png';
+        $this->assertEquals(urldecode($uri), $expected_uri);
+    }
+
+    /**
      * Tests basic query URI with all three parameters
      *
      * @covers Elvis::getQueryUrl

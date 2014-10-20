@@ -84,7 +84,7 @@ includeAsset | Indicates if files should be returned.
 includeExtensions | A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
             
 ### <a name="search">Search</a>
-Wrapper for the search API, returns the hits found. Facets are not currently supported. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. You can find details about the function parameters below.
+Wrapper for the search API, returns the hits found. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. You can find details about the function parameters below.
 
 **Simple search:**
 
@@ -99,6 +99,9 @@ num | Number of hits to return. Specify 0 to return no hits, this can be useful 
 sort | The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 metadataToReturn | Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 appendRequestSecret | When set to true will append an encrypted code to the thumbnail, preview and original URLs.
+facetsToReturn | Comma-delimited list fields to return facets for.
+facetSelection | Array of facets and values with the facet as the key and the comma-delimited list of values that should be 'selected' for a given facet as the value. For example ['tags' => 'beach,ball', 'assetDomain' => 'image,video'].
+
 
 ### <a name="profile">Profile</a>
 Retrieve details about the authenticated user.
