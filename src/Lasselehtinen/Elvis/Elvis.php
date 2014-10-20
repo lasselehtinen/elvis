@@ -70,7 +70,7 @@ class Elvis
             'appendRequestSecret'   => $appendRequestSecret,
             'facets'                => $facets,
             'facetSelection'        => $facetSelection
-        ]
+        ];
 
         // Call the search REST API
         $response = Elvis::query($sessionId, 'search', $searchParameters);

@@ -100,7 +100,7 @@ sort | The sort order of returned hits. Comma-delimited list of fields to sort o
 metadataToReturn | Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
 appendRequestSecret | When set to true will append an encrypted code to the thumbnail, preview and original URLs.
 facetsToReturn | Comma-delimited list fields to return facets for.
-facetSelection) | Array of facets and values with the facet as the key and the comma-delimited list of values that should be 'selected' for a given facet as the value. For example ['tags' => 'beach,ball', 'assetDomain' => 'image,video'].
+facetSelection | Array of facets and values with the facet as the key and the comma-delimited list of values that should be 'selected' for a given facet as the value. For example ['tags' => 'beach,ball', 'assetDomain' => 'image,video'].
 
 
 ### <a name="profile">Profile</a>
