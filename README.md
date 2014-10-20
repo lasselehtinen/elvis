@@ -7,7 +7,7 @@ Add the package to your `composer.json` and run `composer update`.
 
     {
         "require": {
-            "lasselehtinen/elvis": "dev-master"
+            "lasselehtinen/elvis": "1.0.1"
         }
     }
 
