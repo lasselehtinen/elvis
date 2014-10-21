@@ -764,8 +764,8 @@ class Elvis
             App::abort($statusCode, $json_response->loginFaultMessage);
         }
 
-        // Check if get an errorcode in the response
-        if (isset($json_response->errorcode)) {
+        // Check if get an errorcode in the response. Ignore 304 Not modified since it is not really an error
+        if (isset($json_response->errorcode) && $json_response->errorcode !== 304) {
             App::abort($json_response->errorcode, 'Error: ' . $json_response->message);
         }
     }

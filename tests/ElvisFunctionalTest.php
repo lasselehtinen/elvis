@@ -395,6 +395,23 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     }
 
     /**
+     * Tests that no new messages does not return exception because a 304 HTTP response is returned
+     *
+     * @return void
+     */
+    public function testNoNewMessages()
+    {   
+        // Go a message query with locale fi_FI with Epoch timestamp in the far future (12/31/9999)
+        $messages = Elvis::messages($this->sessionId, 'fi_FI', 253402214400000);
+        
+        // Check that we get response code 304
+        $this->assertEquals($messages->errorcode, 304);
+
+        // Check that we get empty message
+        $this->assertEquals($messages->message, '');
+    }
+
+    /**
     * Test for the Zip function
     *
     * @return void
@@ -402,7 +419,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testZipDownload()
     {
         // Test without any parameters
-        $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));        
+        $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));    
     }
 
     /**
