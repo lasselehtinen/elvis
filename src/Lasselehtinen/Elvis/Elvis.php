@@ -901,8 +901,6 @@ class Elvis
         if ( ! empty($response->errorcode)) {
             $json_response->errorcode = $response->errorcode;
             $json_response->message = $response->message;
-
-            return $json_response;
         }
 
         return $json_response;
@@ -938,6 +936,6 @@ class Elvis
             mkdir($directory);
         }
 
-        return $directory  . str_random(40) . 'zip';
+        return $directory  . str_random(40) . '.zip';
     }
 }
