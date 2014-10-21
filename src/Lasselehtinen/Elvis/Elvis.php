@@ -348,7 +348,7 @@ class Elvis
     */
     public function removeRelation($sessionId, $relationIds)
     {
-        // Form createRelation parameters
+        // Form removeRelation parameters
         $removeRelationParameters = array(
             'relationIds'  => implode(',', $relationIds)
         );
@@ -371,7 +371,7 @@ class Elvis
     */
     public function queryStats($sessionId, $queryFile, $num = 1000, $additionalQueryParameters = array())
     {
-        // Form createRelation parameters
+        // Form queryStats parameters
         $queryStatsParameters = array(
             'queryFile' => $queryFile,
             'num'       => $num
@@ -398,7 +398,7 @@ class Elvis
     */
     public function logUsage($sessionId, $assetId, $action, $additionalQueryParameters = array())
     {
-        // Form createRelation parameters
+        // Form logUsage parameters
         $logUsageParameters = array(
             'assetId'   => $assetId,
             'action'    => $action
@@ -448,7 +448,7 @@ class Elvis
     */
     public function checkout($sessionId, $assetId)
     {
-        // Form message parameters
+        // Form checkout parameters
         $checkoutParameters = array('assetId' => $assetId);
 
         $response = Elvis::query($sessionId, 'checkout', $checkoutParameters);
@@ -467,7 +467,7 @@ class Elvis
     */
     public function undocheckout($sessionId, $assetId)
     {
-        // Form message parameters
+        // Form undocheckout parameters
         $undocheckoutParamaters = array('assetId' => $assetId);
 
         $response = Elvis::query($sessionId, 'undocheckout', $undocheckoutParamaters);
@@ -550,7 +550,7 @@ class Elvis
         $listviewZoomLevel = null,
         $filmstripZoomLevel = null
     ) {
-        // Form zip parameters
+        // Form createAuthKey parameters
         $createAuthKeyParameters = array(
             'subject'               => $subject,
             'validUntil'            => $validUntil,
@@ -628,7 +628,7 @@ class Elvis
         $listviewZoomLevel = null,
         $filmstripZoomLevel = null
     ) {
-        // Form zip parameters
+        // Form updateAuthKey parameters
         $updateAuthKeyParameters = array(
             'key'                   => $key,
             'subject'               => $subject,
@@ -668,7 +668,7 @@ class Elvis
     */
     public function revokeAuthKeys($sessionId, $keys)
     {
-        // Form zip parameters
+        // Form revokeAuthKeys parameters
         $revokeAuthKeysParameters = array(
             'keys'      => implode(',', $keys),
         );

@@ -389,7 +389,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertInternalType('object', $messages);
         $this->assertEquals($messages->{'field_label.creatorEmail'}, 'E-mail');
 
-        // Go a message query with locale fi_FI
+        // Do a messages query with locale fi_FI
         $messages = Elvis::messages($this->sessionId, 'fi_FI');
         $this->assertEquals($messages->{'field_label.creatorEmail'}, 'Sähköposti');
     }
@@ -401,7 +401,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
      */
     public function testNoNewMessages()
     {   
-        // Go a message query with locale fi_FI with Epoch timestamp in the far future (12/31/9999)
+        // Do a messages query with locale fi_FI with Epoch timestamp in the far future (12/31/9999)
         $messages = Elvis::messages($this->sessionId, 'fi_FI', 253402214400000);
         
         // Check that we get response code 304
