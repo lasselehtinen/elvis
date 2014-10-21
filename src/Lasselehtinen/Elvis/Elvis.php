@@ -730,13 +730,25 @@ class Elvis
                 $response = $client->post($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'body' => ['Filedata' => fopen($filename, 'r')]]);
                 break;
             
+            // For zip we have to store the received file contents
+            case 'zip':
+                $filename = $this->createUniqueZipFilename();
+                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'save_to' => $filename]);
+                break;
+
             default:
                 $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId]]);
                 break;
         }
 
-        // Convert JSON response to StdObject
-        $json_response = json_decode((string) $response->getBody());
+        // The 'zip' endpoint needs to be treated differently to the other endpoints.
+        if ($endpoint == 'zip') {
+            $json_response = $this->createJsonResponse($filename, $response);
+        }
+        else {
+            // Convert JSON response to StdObject
+            $json_response = json_decode((string)$response->getBody());
+        }
 
         // Check the response and throw exceptions if necessary
         $this->checkResponse($json_response, $response->getStatusCode());
@@ -872,13 +884,38 @@ class Elvis
     }
 
     /**
+     * Create a new repsponse object from the real response object containing
+     * the correct data to pass to the checkResponse method.
+     *
+     * @param $filename
+     * @param $response
+     *
+     * @return \stdClass
+     */
+    private function createJsonResponse($filename, $response) {
+        $json_response = new \stdClass();
+        $json_response->fileName = $filename;
+        $json_response->statusCode = $response->getStatusCode();
+        $json_response->reasonPhrase = $response->getReasonPhrase();
+
+        if ( ! empty($response->errorcode)) {
+            $json_response->errorcode = $response->errorcode;
+            $json_response->message = $response->message;
+
+            return $json_response;
+        }
+
+        return $json_response;
+    }
+
+    /**
      * Casts the facet selections into the correct Elvis format.
      *
      * @param (array) facetSelection
      *
      * @return array
      */
-    private function rekeyFacetSelection($facetSelection){
+    private function rekeyFacetSelection($facetSelection) {
         $result = [];
 
         foreach ($facetSelection as $facet => $value){
@@ -887,5 +924,20 @@ class Elvis
         }
 
         return $result;
+    }
+
+	/**
+     * Return a unique zip filename in the Elvis folder in the storage directory.
+     *
+     * @return string
+     */
+    private function createUniqueZipFilename() {
+        $directory = storage_path() . '/elvis/';
+
+        if ( ! file_exists($directory)) {
+            mkdir($directory);
+        }
+
+        return $directory  . str_random(40) . 'zip';
     }
 }
