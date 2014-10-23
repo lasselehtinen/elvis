@@ -352,10 +352,10 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $logUsage = Elvis::logUsage($this->sessionId, $this->assetId, 'CUSTOM_ACTION_Test', array('uniqueTestId' => $uniqueId));
 
         // Sleep for around 15 seconds and go through usage log to find match
-        sleep(20);
+        sleep(10);
 
         // Query usage log
-        $queryStats = Elvis::queryStats($this->sessionId, 'stats_rawdata/sql/usagelog.sql');
+        $queryStats = Elvis::queryStats($this->sessionId, 'stats_rawdata/sql/customlog.sql');
 
         // Go through the stats and try to find match
         foreach($queryStats as $queryStat)
