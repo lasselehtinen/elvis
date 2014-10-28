@@ -61,17 +61,14 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
      */
     public function testLoginWithIncorrectUsernameAndPassword()
     {
-        // Test that login
-        $this->setExpectedException(
-          'Symfony\Component\HttpKernel\Exception\HttpException', 'Invalid username or password'
-        );
-
         // Set incorrect username and password
         Config::set('elvis::username', 'incorrect_username');
         Config::set('elvis::password', 'incorrect_password');
 
         // Try login
         $sessionId = Elvis::login();
+
+        $this->assertEquals($sessionId, null); 
     }
 
     /**

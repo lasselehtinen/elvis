@@ -22,8 +22,13 @@ class Elvis
         );
 
         $response = Elvis::query(null, 'login', $loginParameters);
-
-        return $response->sessionId;
+        
+        // Return null if login failed, otherwise the session id.
+        if($response->loginSuccess === false) {
+            return null;
+        } else {
+            return $response->sessionId;
+        }        
     }
 
     /**
@@ -738,36 +743,7 @@ class Elvis
         // Convert JSON response to StdObject
         $json_response = json_decode((string) $response->getBody());
 
-        // Check the response and throw exceptions if necessary
-        $this->checkResponse($json_response, $response->getStatusCode());
-
         return $json_response;
-    }
-    
-    /**
-    * Check the response and return exceptions if necessary
-    *
-    * @param (object) (json_response) Object containing the JSON response
-    * @param (string) (statusCode) HTTP status code
-    * @return (object) Return object response
-    *
-    */
-    public function checkResponse($json_response, $statusCode)
-    {
-         // Check if get 404
-        if ($statusCode == '404') {
-            App::abort($json_response->code, 'The requested resource not found. Please check the api_endpoint_uri in the configuration.');
-        }
-
-        // For login, check if get error
-        if (isset($json_response->loginSuccess) && $json_response->loginSuccess === false) {
-            App::abort($statusCode, $json_response->loginFaultMessage);
-        }
-
-        // Check if get an errorcode in the response. Ignore 304 Not modified since it is not really an error
-        if (isset($json_response->errorcode) && $json_response->errorcode !== 304) {
-            App::abort($json_response->errorcode, 'Error: ' . $json_response->message);
-        }
     }
 
     /**
