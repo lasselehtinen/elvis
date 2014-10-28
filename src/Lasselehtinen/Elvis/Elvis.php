@@ -1,8 +1,7 @@
 <?php namespace LasseLehtinen\Elvis;
 
-// Import classes to use the classic "Config::get()" approach and App for throwing exceptions
+// Import classes to use the Laravel config package
 use Config;
-use App;
 
 class Elvis
 {
