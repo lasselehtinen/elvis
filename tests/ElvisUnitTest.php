@@ -22,7 +22,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
      */
     public function testBasicQueryAllParametersUri()
     {
-        // 
+        //
         $queryParameters = array(
             'q'        => 'gtin:123',
             'async'    => true
@@ -118,6 +118,5 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         $expected_uri = Config::get('elvis::api_endpoint_uri') . 'checkout/assetId';
         $this->assertEquals(urldecode($uri), $expected_uri);
     }
-        
 
 }

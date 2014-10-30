@@ -21,13 +21,13 @@ class Elvis
         );
 
         $response = Elvis::query(null, 'login', $loginParameters);
-        
+
         // Return null if login failed, otherwise the session id.
-        if($response->loginSuccess === false) {
+        if ($response->loginSuccess === false) {
             return null;
         } else {
             return $response->sessionId;
-        }        
+        }
     }
 
     /**
@@ -365,7 +365,7 @@ class Elvis
     /**
     * Query stats
     *
-    * Query stats database for usage statistics. 
+    * Query stats database for usage statistics.
     *
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @param (string) (queryFile) The path to the SQL file with the query you want to run.
@@ -487,8 +487,8 @@ class Elvis
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @param (string) (filename) Filename of the zip file to be created
     * @param (string) (downloadKind) The type of the files that are included in the archive. Possible values are original or preview.
-    * @param (array) (assetIds) Array containing the asset to be included in the Zip file 
-    * @return (object) 
+    * @param (array) (assetIds) Array containing the asset to be included in the Zip file
+    * @return (object)
     */
     public function zip($sessionId, $filename, $downloadKind, $assetIds)
     {
@@ -699,7 +699,7 @@ class Elvis
     {
         // Form query URI
         $uri = $this->getQueryUrl($endpoint, $parameters, $metadata);
-        
+
         // Get response for this URI
         $response = $this->getResponse($sessionId, $uri, $endpoint, $filename);
 
@@ -733,7 +733,7 @@ class Elvis
             case 'create':
                 $response = $client->post($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'body' => ['Filedata' => fopen($filename, 'r')]]);
                 break;
-            
+
             default:
                 $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId]]);
                 break;
@@ -764,26 +764,24 @@ class Elvis
         $baseUrl['endpoint'] = $endpoint;
 
         // Add filename to Zip download
-        if($endpoint === 'zip')
-        {
+        if ($endpoint === 'zip') {
             $baseUrl['zipFilename'] = '/' . $parameters['filename'];
             unset($parameters['filename']);
-            
+
             // Remove services, since zip download is at the root
             $baseUrl['baseUrl'] = str_replace('services/', '', $baseUrl['baseUrl']);
         }
 
-        // Move assetId for checkout and undocheckout           
-        if($endpoint === 'checkout' || $endpoint === 'undocheckout')
-        {
+        // Move assetId for checkout and undocheckout
+        if ($endpoint === 'checkout' || $endpoint === 'undocheckout') {
             $baseUrl[$endpoint] = '/' . $parameters['assetId'];
-            
+
             // Set parameters to null, since nothing else left
-            $parameters = null;            
+            $parameters = null;
         }
 
         // Cast the selected facets in to the correct form.
-        if(!empty($parameters['facetSelection'])){
+        if (!empty($parameters['facetSelection'])) {
             $facetSelection = $this->rekeyFacetSelection($parameters['facetSelection']);
 
             // Remove the original facet selection
@@ -798,7 +796,7 @@ class Elvis
 
         // Combine base url and query parameters
         $combinedUrl = array_merge($baseUrl, $queryParameters);
-        
+
         // Form complete URI by imploding the array
         $uri = implode('', $combinedUrl);
 
@@ -821,7 +819,7 @@ class Elvis
 
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
         if (($parameters !== null || $metadata !== null)) {
-            $query['parametersSeparator'] = '?';            
+            $query['parametersSeparator'] = '?';
         }
 
         // Init query parameters array
@@ -853,10 +851,11 @@ class Elvis
      *
      * @return array
      */
-    private function rekeyFacetSelection($facetSelection){
+    private function rekeyFacetSelection($facetSelection)
+    {
         $result = [];
 
-        foreach ($facetSelection as $facet => $value){
+        foreach ($facetSelection as $facet => $value) {
             $key = "facet.{$facet}.selection";
             $result[$key] = $value;
         }

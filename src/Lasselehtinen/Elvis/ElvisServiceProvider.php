@@ -2,8 +2,8 @@
 
 use Illuminate\Support\ServiceProvider;
 
-class ElvisServiceProvider extends ServiceProvider {
-
+class ElvisServiceProvider extends ServiceProvider
+{
 	/**
 	 * Indicates if loading of the provider is deferred.
 	 *
@@ -31,9 +31,8 @@ class ElvisServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app['elvis'] = $this->app->share(function()
-  		{
-    		return new Elvis;
+		$this->app['elvis'] = $this->app->share(function () {
+    		return new Elvis();
   		});
 	}
 

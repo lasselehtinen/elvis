@@ -21,15 +21,15 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         parent::setUp();
 
         // Get session Id to user in the queries
-        $this->sessionId = Elvis::login();     
-        
+        $this->sessionId = Elvis::login();
+
         // Upload a randon file to Elvis for various tests
         $temporaryFilename = tempnam("/tmp", "ElvisTest");
 
         // Create a file and store asset id
         $create = Elvis::create($this->sessionId, $temporaryFilename);
         $this->assetId = $create->id;
-        
+
         // Remove temporary file
         unlink($temporaryFilename);
     }
@@ -68,7 +68,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         // Try login
         $sessionId = Elvis::login();
 
-        $this->assertEquals($sessionId, null); 
+        $this->assertEquals($sessionId, null);
     }
 
     /**
@@ -89,7 +89,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertInternalType('array', $profile->groups);
 
         // Check that username is the same we used to log in
-        $this->assertEquals($profile->username, Config::get('elvis::username'));        
+        $this->assertEquals($profile->username, Config::get('elvis::username'));
     }
 
     /**
@@ -163,7 +163,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     * @return void
     */
     public function testUpdate()
-    {        
+    {
         // Update one metadata field
         $update = Elvis::update($this->sessionId, $this->assetId, null, ['gtin' => '1234567890']);
 
@@ -208,13 +208,13 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         // Check that we get one hit and the assetPath is correct type
         $this->assertEquals($searchResults->totalHits, 1);
         $this->assertInternalType('string', $searchResults->hits[0]->metadata->assetPath);
-        
+
         // Create new filename
         $pathParts = pathinfo($searchResults->hits[0]->metadata->assetPath);
         $copyFilename = $pathParts['dirname'] . '/' . $pathParts['filename'] . '-copy';
-        
+
         $copy = Elvis::copy($this->sessionId, $searchResults->hits[0]->metadata->assetPath, $copyFilename);
-        
+
         // Check that we get correct processedCount
         $this->assertEquals($copy->processedCount, 1);
 
@@ -234,7 +234,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $remove = Elvis::remove($this->sessionId, 'assetPath:"' . $renamedFilename . '"');
         $this->assertEquals($remove->processedCount, 1);
     }
-    
+
     /**
     *
     * Tests for the creation of folders
@@ -247,7 +247,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $profile = Elvis::profile($this->sessionId);
 
         // Create new folder in the the User Zone aka home directory
-        $newFolder = $profile->userZone . '/New folder';        
+        $newFolder = $profile->userZone . '/New folder';
         $createFolder = Elvis::createFolder($this->sessionId, $newFolder);
 
         // Check that we get correct response
@@ -259,7 +259,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 
         // Remove the created folder
         $removeFolder = Elvis::remove($this->sessionId, null, null, $newFolder, false);
-        
+
         // Since actually no assets were removed, we will get 0
         $this->assertEquals($removeFolder->processedCount, 0);
     }
@@ -273,12 +273,12 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testQueryStats()
     {
         $queryStats = Elvis::queryStats($this->sessionId, 'stats_rawdata/sql/usagelog.sql', 10);
-        
+
         // Check that we get correct response and amount
         $this->assertInternalType('array', $queryStats);
-        $this->assertEquals(count($queryStats), 10);        
+        $this->assertEquals(count($queryStats), 10);
     }
-    
+
     /**
     *
     * Tests or creating a relation
@@ -303,7 +303,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 
         // Create relation between these two
         $createRelation = Elvis::createRelation($this->sessionId, 'related', $asset1Id, $asset2Id);
-        
+
         // Chech that response is in correct form
         $this->assertInternalType('object', $createRelation);
 
@@ -316,7 +316,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 
         // Check that we have relation returned in the results
         $this->assertInternalType('object', $searchResults->hits[0]->relation);
-        
+
         // Check that the relation information is correct
         $this->assertEquals($searchResults->hits[0]->relation->relationType, 'related');
         $this->assertEquals($searchResults->hits[0]->relation->target1Id, $asset1Id);
@@ -332,7 +332,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $searchResults = Elvis::search($this->sessionId, 'relatedTo:' . $asset1Id . ' relationTarget:child relationType:related');
         $this->assertEquals($searchResults->totalHits, 0);
     }
-    
+
     /**
     *
     * Tests for the log usage
@@ -344,7 +344,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         // Set default and create unique id so we can distinguish test case from other
         $actionFound = false;
         $uniqueId = uniqid();
-        
+
         // Create log entry
         $logUsage = Elvis::logUsage($this->sessionId, $this->assetId, 'CUSTOM_ACTION_Test', array('uniqueTestId' => $uniqueId));
 
@@ -355,21 +355,20 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $queryStats = Elvis::queryStats($this->sessionId, 'stats_rawdata/sql/customlog.sql');
 
         // Go through the stats and try to find match
-        foreach($queryStats as $queryStat)
-        {
+        foreach ($queryStats as $queryStat) {
             // Check if there is a match with action type
-            if($queryStat->action_type == 'CUSTOM_ACTION_CUSTOM_ACTION_Test') {
+            if ($queryStat->action_type == 'CUSTOM_ACTION_CUSTOM_ACTION_Test') {
                 // Go through custom metadatas
-                foreach($queryStat->details as $key => $value) {
-                    if($key == 'uniqueTestId' && $value == $uniqueId) {
+                foreach ($queryStat->details as $key => $value) {
+                    if ($key == 'uniqueTestId' && $value == $uniqueId) {
                         $actionFound = true;
                         break;
                     }
                 }
-            }      
+            }
         }
 
-        $this->assertEquals($actionFound, true, "logUsage not found the usage log");        
+        $this->assertEquals($actionFound, true, "logUsage not found the usage log");
     }
 
     /**
@@ -378,10 +377,10 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
      * @return void
      */
     public function testMessages()
-    {   
+    {
         // Test without any parameters
         $messages = Elvis::messages($this->sessionId);
-        
+
         // Check that have certain known labels
         $this->assertInternalType('object', $messages);
         $this->assertEquals($messages->{'field_label.creatorEmail'}, 'E-mail');
@@ -397,10 +396,10 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
      * @return void
      */
     public function testNoNewMessages()
-    {   
+    {
         // Do a messages query with locale fi_FI with Epoch timestamp in the far future (12/31/9999)
         $messages = Elvis::messages($this->sessionId, 'fi_FI', 253402214400000);
-        
+
         // Check that we get response code 304
         $this->assertEquals($messages->errorcode, 304);
 
@@ -416,7 +415,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testZipDownload()
     {
         // Test without any parameters
-        $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));    
+        $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));
     }
 
     /**
@@ -428,7 +427,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         // Update one metadata field
         $update = Elvis::update($this->sessionId, $this->assetId, null, ['tags' => 'beach, house']);
-        
+
         // Get the asset info again and check that the metadata is updated
         $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
 
@@ -461,9 +460,9 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         // Checkout the asset
         $checkout = Elvis::checkout($this->sessionId, $this->assetId);
-        
+
         // Get the asset info again and check that the checkout flag is updated
-        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);        
+        $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
         $this->assertEquals($searchResults->hits[0]->metadata->checkedOutBy, Config::get('elvis::username'));
         $this->assertInternalType('object', $searchResults->hits[0]->metadata->checkedOut);
 
@@ -485,10 +484,10 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         // Checkout the asset
         $createAuthKey = Elvis::createAuthKey($this->sessionId, 'Test', '2999-01-01', array($this->assetId));
-        
+
         // Check that response is correct type
         $this->assertInternalType('object', $createAuthKey);
-        
+
         // Check that we get authKey
         $this->assertInternalType('string', $createAuthKey->authKey);
 

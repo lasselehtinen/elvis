@@ -8,7 +8,7 @@ return array(
 	|--------------------------------------------------------------------------
 	*/
 
-	'api_endpoint_uri' 	=>	'http://elvis.domain.com/services/',
+	'api_endpoint_uri'    =>    'http://elvis.domain.com/services/',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -16,6 +16,6 @@ return array(
 	|--------------------------------------------------------------------------
 	*/
 
-	'username'			=>	'elvis_username',
-	'password'			=>	'secretpassword',	
+	'username'            =>    'elvis_username',
+	'password'            =>    'secretpassword',
 );
