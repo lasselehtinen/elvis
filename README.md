@@ -1,3 +1,8 @@
+[![Latest Stable Version](https://poser.pugx.org/lasselehtinen/elvis/v/stable.svg)](https://packagist.org/packages/lasselehtinen/elvis) 
+[![Total Downloads](https://poser.pugx.org/lasselehtinen/elvis/downloads.svg)](https://packagist.org/packages/lasselehtinen/elvis)
+[![Latest Unstable Version](https://poser.pugx.org/lasselehtinen/elvis/v/unstable.svg)](https://packagist.org/packages/lasselehtinen/elvis)
+[![License](https://poser.pugx.org/lasselehtinen/elvis/license.svg)](https://packagist.org/packages/lasselehtinen/elvis)
+
 # Installation
 ------------
 
