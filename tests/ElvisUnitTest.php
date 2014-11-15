@@ -118,5 +118,4 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         $expected_uri = Config::get('elvis::api_endpoint_uri') . 'checkout/assetId';
         $this->assertEquals(urldecode($uri), $expected_uri);
     }
-
 }

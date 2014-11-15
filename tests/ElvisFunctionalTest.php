@@ -416,6 +416,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         // Test without any parameters
         $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));
+        dd($zipDownload);
     }
 
     /**

@@ -721,7 +721,7 @@ class Elvis
     {
         // Create new Guzzle client
         $client = new \GuzzleHttp\Client();
-
+        
         // Form Guzzle query depending on the endpoint
         switch ($endpoint) {
             // For login we dont set the cookie
@@ -731,13 +731,23 @@ class Elvis
 
             // For create we have store file contents and send it as variable Filedata
             case 'create':
-                $response = $client->post($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'body' => ['Filedata' => fopen($filename, 'r')]]);
+                $response = $client->post(
+                    $uri,
+                    array(
+                        'headers'   =>  ['Cookie' => 'JSESSIONID=' . $sessionId],
+                        'body'      =>  ['Filedata' => fopen($filename, 'r')]
+                    )
+                );
                 break;
-            
+
             // For zip we have to store the received file contents
             case 'zip':
                 $filename = $this->createUniqueZipFilename();
-                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId], 'save_to' => $filename]);
+                
+                $response = $client->get($uri, [
+                    'headers'   =>  ['Cookie' => 'JSESSIONID=' . $sessionId],
+                    'save_to'   =>  $filename,
+                ]);
                 break;
 
             default:
@@ -748,10 +758,9 @@ class Elvis
         // The 'zip' endpoint needs to be treated differently to the other endpoints.
         if ($endpoint == 'zip') {
             $json_response = $this->createJsonResponse($filename, $response);
-        }
-        else {
+        } else {
             // Convert JSON response to StdObject
-            $json_response = json_decode((string)$response->getBody());
+            $json_response = json_decode((string) $response->getBody());
         }
 
         return $json_response;
@@ -865,13 +874,14 @@ class Elvis
      *
      * @return \stdClass
      */
-    private function createJsonResponse($filename, $response) {
+    private function createJsonResponse($filename, $response)
+    {
         $json_response = new \stdClass();
         $json_response->fileName = $filename;
         $json_response->statusCode = $response->getStatusCode();
         $json_response->reasonPhrase = $response->getReasonPhrase();
 
-        if ( ! empty($response->errorcode)) {
+        if (!empty($response->errorcode)) {
             $json_response->errorcode = $response->errorcode;
             $json_response->message = $response->message;
         }
@@ -886,7 +896,8 @@ class Elvis
      *
      * @return array
      */
-    private function rekeyFacetSelection($facetSelection) {
+    private function rekeyFacetSelection($facetSelection)
+    {
         $result = [];
 
         foreach ($facetSelection as $facet => $value) {
@@ -897,18 +908,19 @@ class Elvis
         return $result;
     }
 
-	/**
+    /**
      * Return a unique zip filename in the Elvis folder in the storage directory.
      *
      * @return string
      */
-    private function createUniqueZipFilename() {
+    private function createUniqueZipFilename()
+    {
         $directory = storage_path() . '/elvis/';
 
-        if ( ! file_exists($directory)) {
+        if (!file_exists($directory)) {
             mkdir($directory);
         }
 
-        return $directory  . str_random(40) . '.zip';
+        return $directory . str_random(40) . '.zip';
     }
 }
