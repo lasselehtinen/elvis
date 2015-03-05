@@ -73,7 +73,7 @@ You need to login as the first step. Store the sessionId returned by the functio
     $search_results = Elvis::search($sessionId, 'gtin:9789510123454');
 
 ### <a name="browse">Browse</a>
-This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client. Read more at https://elvis.tenderapp.com/kb/api/rest-browse.
+This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client. Read more at https://helpcenter.woodwing.com/hc/en-us/sections/200449479-API.
 
 > Note: Even though it is possible to return the assets in folders, doing so is not advised. The browse call does not limit the number of results, so if there are 10000 assets in a folder it will return all of them. It is better to use a search to find the assets in a folder and fetch them in pages.
 
@@ -89,7 +89,7 @@ includeAsset | Indicates if files should be returned.
 includeExtensions | A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
             
 ### <a name="search">Search</a>
-Wrapper for the search API, returns the hits found. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search. You can find details about the function parameters below.
+Wrapper for the search API, returns the hits found. You can find more information at https://helpcenter.woodwing.com/hc/en-us/articles/202967175-REST-search. You can find details about the function parameters below.
 
 **Simple search:**
 
@@ -98,11 +98,11 @@ Wrapper for the search API, returns the hits found. You can find more informatio
 Parameter | Description
 --------- | -----------
 sessionId| Session ID returned by the login function.
-q | Actual Lucene query, you can find more details in https://elvis.tenderapp.com/kb/technical/query-syntax
+q | Actual Lucene query, you can find more details in https://helpcenter.woodwing.com/hc/en-us/articles/202249409-Query-syntax
 start | First hit to be returned. Starting at 0 for the first hit. Used to skip hits to return 'paged' results. Default is 0.
 num | Number of hits to return. Specify 0 to return no hits, this can be useful if you only want to fetch facets data. Default is 50.
-sort | The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
-metadataToReturn | Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
+sort | The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202967175-REST-search
+metadataToReturn | Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202967175-REST-search
 appendRequestSecret | When set to true will append an encrypted code to the thumbnail, preview and original URLs.
 facetsToReturn | Comma-delimited list fields to return facets for.
 facetSelection | Array of facets and values with the facet as the key and the comma-delimited list of values that should be 'selected' for a given facet as the value. For example ['tags' => 'beach,ball', 'assetDomain' => 'image,video'].
@@ -114,7 +114,7 @@ Retrieve details about the authenticated user.
     $profile = Elvis::profile($sessionId);
 
 ### <a name="create">Create</a>
-This call will create a new asset in Elvis. It can be used to upload files into Elvis. It can also be used to create 'virtual' assets like collections. In that case no file has to be uploaded and Elvis will create a 0 kb placeholder for the virtual asset. Read more at https://elvis.tenderapp.com/kb/api/rest-create.
+This call will create a new asset in Elvis. It can be used to upload files into Elvis. It can also be used to create 'virtual' assets like collections. In that case no file has to be uploaded and Elvis will create a 0 kb placeholder for the virtual asset. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202967215-REST-create.
 
 **Note:** Either assetPath, filename or name as to be specified in the metadata.
 
@@ -127,7 +127,7 @@ filename|The local filename to be created in Elvis. If you do not specify a file
 metadata|Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
 
 ### <a name="update">Update</a>
-This call updates an existing asset in Elvis with a new file. It can also be used to update metadata. Works pretty much the same ways a create. Only difference is that you given additional parameter, the asset id. Read more at https://elvis.tenderapp.com/kb/api/rest-update.
+This call updates an existing asset in Elvis with a new file. It can also be used to update metadata. Works pretty much the same ways a create. Only difference is that you given additional parameter, the asset id. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202250049-REST-update.
 
     $update = Elvis::update($sessionId, '1_OSDdstqxbACb97Vd-ret', null, array('Description' => 'Nice view'));
 
@@ -171,7 +171,7 @@ fileReplacePolicy | Policy used when destination asset already exists. Either AU
 filterQuery | When specified, only source assets that match this query will be moved.
 flattenFolders | When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
 
-Please see https://elvis.tenderapp.com/kb/api/rest-move-rename for more information about the folderReplacePolicy and fileReplacePolicy.
+Please see https://helpcenter.woodwing.com/hc/en-us/articles/202967265-REST-move-rename for more information about the folderReplacePolicy and fileReplacePolicy.
 
 ### <a name="copy">Copy</a>
 Copy a folder or a single asset.
@@ -190,7 +190,7 @@ fileReplacePolicy | Policy used when destination asset already exists. Either AU
 filterQuery | When specified, only source assets that match this query will be moved.
 flattenFolders | When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
 
-Please see https://elvis.tenderapp.com/kb/api/rest-copy for more information about the folderReplacePolicy and fileReplacePolicy.
+Please see https://helpcenter.woodwing.com/hc/en-us/articles/202967305-REST-copy for more information about the folderReplacePolicy and fileReplacePolicy.
 
 Returns either processedCount or processId depending on the value of async.
 
@@ -237,7 +237,7 @@ Remove one or more assets. This will remove only assets, no folders.
 Parameter | Description
 --------- | -----------
 sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
-relationType | The type of relation to create. Read more at https://elvis.tenderapp.com/kb/content-management/relations
+relationType | The type of relation to create. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202966905-Relations
 target1Id | The id of the asset on one side of the relation.
 target2Id | The id of the asset on one side of the relation.
 metadata |A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
@@ -252,7 +252,7 @@ Remove one or more relations between assets.
 Parameter | Description
 --------- | -----------
 sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
-relationIds| Array containing relation id's to be removed. To find the relation ids, use a relation search. https://elvis.tenderapp.com/kb/api/rest-search
+relationIds| Array containing relation id's to be removed. To find the relation ids, use a relation search. https://helpcenter.woodwing.com/hc/en-us/articles/202967175-REST-search
     
 The operation returns an empty 200 OK status.
 
@@ -269,7 +269,7 @@ sessionId | Session ID returned by the login function. This is used for     quer
 num | Number of rows to return. Specify 0 to return all rows.
 additionalQueryParameters | Array of additional query parameters passed to the SQL in name => value format.
     
-For more details about the parameters see https://elvis.tenderapp.com/kb/api/rest-query-stats. Returns the result of the SQL query as an object. 
+For more details about the parameters see https://helpcenter.woodwing.com/hc/en-us/articles/202250179-REST-query-stats. Returns the result of the SQL query as an object. 
 
 ### <a name="logusagestats">Log usage stats</a>
 Logs an entry in the stats database for usage statistics about assets. A record will be added to the "usage_log" table, see [Query stats](#querystats) for details.
@@ -307,7 +307,7 @@ The common message bundle cmn is always returned and merged with the requested b
 
     field_value_label.[field name].[value]    
     
-For a full list of available messages see this [knowledge base article](https://elvis.tenderapp.com/kb/server-administration/translating-clients).    
+For a full list of available messages see this [knowledge base article](https://helpcenter.woodwing.com/hc/en-us/articles/202967365-Translating-clients).    
 
      $messages = Elvis::messages($sessionId, 'fi_FI');
 
@@ -354,7 +354,7 @@ Parameter | Description
 --------- | -----------
 sessionId | Session ID returned by the login function.
 subject | AuthKey subject
-validUntil | Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
+validUntil | Expiry date, in one of the date formats supported by Elvis. See https://helpcenter.woodwing.com/hc/en-us/articles/202249409-Query-syntax for more details
 assetIds | Array of of asset id's to share, do not specify for a pure upload request (requestUpload must be true is this case)
 description | AuthKey description that will be shown to receiver of the link.
 downloadOriginal | Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
@@ -387,7 +387,7 @@ Parameter | Description
 sessionId | Session ID returned by the login function.
 key | The authKey which will be updated.
 subject | AuthKey subject
-validUntil | Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
+validUntil | Expiry date, in one of the date formats supported by Elvis. See https://helpcenter.woodwing.com/hc/en-us/articles/202249409-Query-syntax for more details
 description | AuthKey description that will be shown to receiver of the link.
 downloadOriginal | Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
 downloadPreview | Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
