@@ -18,7 +18,7 @@ class ElvisServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('lasselehtinen/elvis');
+        //$this->package('lasselehtinen/elvis');
 
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('Elvis', 'Lasselehtinen\Elvis\Facades\Elvis');
