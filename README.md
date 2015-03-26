@@ -6,7 +6,7 @@
 # Installation
 ------------
 
-## Laravel 4.X
+## Laravel 5.X
 
 ### Step 1
 
