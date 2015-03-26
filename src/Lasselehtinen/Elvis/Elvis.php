@@ -16,8 +16,8 @@ class Elvis
     {
         // Form login parameters
         $loginParameters = array(
-            'username' => Config::get('elvis::username'),
-            'password' => Config::get('elvis::password')
+            'username' => Config::get('elvis.username'),
+            'password' => Config::get('elvis.password')
         );
 
         $response = Elvis::query(null, 'login', $loginParameters);
@@ -781,7 +781,7 @@ class Elvis
     {
         // Form basic URI
         $baseUrl = array();
-        $baseUrl['baseUrl'] = Config::get('elvis::api_endpoint_uri');
+        $baseUrl['baseUrl'] = Config::get('elvis.api_endpoint_uri');
         $baseUrl['endpoint'] = $endpoint;
 
         // Add filename to Zip download
