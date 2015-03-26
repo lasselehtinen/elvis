@@ -19,12 +19,8 @@ class ElvisServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/config/elvis.php' => config_path('elvis.php'),
+            __DIR__.'/../../config/config.php' => config_path('elvis.php'),
         ]);
-
-        //$this->package('lasselehtinen/elvis');
-        //$loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        //$loader->alias('Elvis', 'Lasselehtinen\Elvis\Facades\Elvis');
     }
 
     /**
@@ -36,6 +32,12 @@ class ElvisServiceProvider extends ServiceProvider
     {
         $this->app['elvis'] = $this->app->share(function () {
             return new Elvis();
+        });
+
+        $this->app->booting(function()
+        {
+            $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+            $loader->alias('Elvis', 'Lasselehtinen\Elvis\Facades\Elvis');
         });
     }
 
