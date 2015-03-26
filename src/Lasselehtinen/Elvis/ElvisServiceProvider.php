@@ -20,8 +20,8 @@ class ElvisServiceProvider extends ServiceProvider
     {
         //$this->package('lasselehtinen/elvis');
 
-        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('Elvis', 'Lasselehtinen\Elvis\Facades\Elvis');
+        //$loader = \Illuminate\Foundation\AliasLoader::getInstance();
+        //$loader->alias('Elvis', 'Lasselehtinen\Elvis\Facades\Elvis');
     }
 
     /**
