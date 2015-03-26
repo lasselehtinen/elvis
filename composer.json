@@ -14,7 +14,8 @@
         "guzzlehttp/guzzle": "~4.0"
     },
     "require-dev": {
-        "orchestra/testbench": "2.2.*"
+        "orchestra/testbench": "2.2.*",
+        "vlucas/phpdotenv": "~1.1"
     },
     "autoload": {
         "psr-0": {

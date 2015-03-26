@@ -20,6 +20,14 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
+        // Load Dotenv
+        Dotenv::load(__DIR__);
+
+        // Set Laravel configuration parameters
+        Config::set('elvis.api_endpoint_uri', getenv('ELVIS_API_ENDPOINT_URI'));
+        Config::set('elvis.username', getenv('ELVIS_USERNAME'));
+        Config::set('elvis.password', getenv('ELVIS_PASSWORD'));
+
         // Get session Id to user in the queries
         $this->sessionId = Elvis::login();
 
@@ -398,7 +406,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testNoNewMessages()
     {
         // Do a messages query with locale fi_FI with Epoch timestamp in the far future (12/31/9999)
-        $messages = Elvis::messages($this->sessionId, 'fi_FI', 253402214400000);
+        $messages = Elvis::messages($this->sessionId, 'fi_FI', 1893456000000);
 
         // Check that we get response code 304
         $this->assertEquals($messages->errorcode, 304);
@@ -416,7 +424,9 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         // Test without any parameters
         $zipDownload = Elvis::zip($this->sessionId, 'test.zip', 'original', array($this->assetId));
-        dd($zipDownload);
+
+        $this->assertInternalType('string', $zipDownload->fileName);
+        $this->assertEquals(200, $zipDownload->statusCode);
     }
 
     /**

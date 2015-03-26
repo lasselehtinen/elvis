@@ -19,7 +19,7 @@ class Elvis
             'username' => Config::get('elvis.username'),
             'password' => Config::get('elvis.password')
         );
-
+        
         $response = Elvis::query(null, 'login', $loginParameters);
 
         // Return null if login failed, otherwise the session id.
