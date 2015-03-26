@@ -6,7 +6,41 @@
 # Installation
 ------------
 
-## Step 1
+## Laravel 4.X
+
+### Step 1
+
+Add the package to your `composer.json` and run `composer update`.
+
+    {
+        "require": {
+            "lasselehtinen/elvis": "2.0.0"
+        }
+    }
+
+### Step 2
+
+Add the service provider and alias in `config/app.php`:
+    
+    'providers' => array(
+        ...
+        'Lasselehtinen\Elvis\ElvisServiceProvider'
+    ),
+    
+### Step 3
+Publish the package config file by running:
+
+    php artisan vendor:publish
+    
+This copies the Elvis config to config/Elvis.php and references to the .env configuration file used by Laravel 5. So edit the .env file and add the following entries:
+
+    ELVIS_API_ENDPOINT_URI='http://elvis.domain.com/services/',
+    ELVIS_USERNAME='elvis_username',
+    ELVIS_PASSWORD='elvis_password'
+
+## Laravel 4.X
+
+### Step 1
 
 Add the package to your `composer.json` and run `composer update`.
 
@@ -16,7 +50,7 @@ Add the package to your `composer.json` and run `composer update`.
         }
     }
 
-## Step 2
+### Step 2
 
 Add the service provider and alias in `app/config/app.php`:
     
@@ -32,7 +66,7 @@ And
         'Elvis'           => 'Lasselehtinen\Elvis\Facades\Elvis'
     ),
 
-## Step 3
+### Step 3
 Publish the package config file by running:
 
     php artisan config:publish lasselehtinen/elvis
