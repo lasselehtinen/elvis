@@ -62,11 +62,11 @@ class Elvis
      * @param (array) (facetSelection) Array of facets and values where the facet is the key and the comma-delimited list of values that should be 'selected' for a given facet as the value.
      * @return (object) List of search results
      */
-    public function search($sessionId, $q, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
+    public function search($sessionId, $query, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
     {
         // Form search parameters
         $searchParameters = [
-            'q'                     => $q,
+            'q'                     => $query,
             'start'                 => $start,
             'num'                   => $num,
             'sort'                  => $sort,
@@ -157,14 +157,10 @@ class Elvis
     * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
     * @return (object) Elvis returns something strange, TODO investigate it
     */
-    public function update($sessionId, $id, $filename, $metadata)
+    public function update($sessionId, $asset_id, $filename, $metadata)
     {
-        // Form update parameters
-        $updateParameters = array(
-            'id' => $id,
-        );
-
-        $response = Elvis::query($sessionId, 'update', $updateParameters, $metadata, $filename);
+        // Perform the query
+        $response = Elvis::query($sessionId, 'update', ['id' => $asset_id], $metadata, $filename);
 
         return $response;
     }
@@ -272,7 +268,7 @@ class Elvis
     * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
     * @return (object) Either processedCount or processId depending if async is true or false
     */
-    public function remove($sessionId, $q = null, $ids = null, $folderPath = null, $async = false)
+    public function remove($sessionId, $query = null, $ids = null, $folderPath = null, $async = false)
     {
         if ($ids !== null && is_array($ids)) {
             $idsCommaSeparated = implode(",", $ids);
@@ -282,7 +278,7 @@ class Elvis
 
         // Form remove parameters
         $removeParameters = array(
-            'q'             => $q,
+            'q'             => $query,
             'ids'           => $idsCommaSeparated,
             'folderPath'    => $folderPath,
             'async'         => $async
@@ -305,12 +301,8 @@ class Elvis
     */
     public function createFolder($sessionId, $path)
     {
-        // Form createFolder parameters
-        $createFolderParameters = array(
-            'path'                => $path
-        );
-
-        $response = Elvis::query($sessionId, 'createFolder', $createFolderParameters);
+        // Perform query
+        $response = Elvis::query($sessionId, 'createFolder', ['path' => $path]);
 
         return $response;
     }
@@ -330,13 +322,13 @@ class Elvis
     public function createRelation($sessionId, $relationType, $target1Id, $target2Id, $metadata = null)
     {
         // Form createRelation parameters
-        $createRelationParameters = array(
+        $relationParameters = array(
             'relationType'  => $relationType,
             'target1Id'     => $target1Id,
             'target2Id'     => $target2Id
         );
 
-        $response = Elvis::query($sessionId, 'createRelation', $createRelationParameters, $metadata);
+        $response = Elvis::query($sessionId, 'createRelation', $relationParameters, $metadata);
 
         return $response;
     }
@@ -353,11 +345,11 @@ class Elvis
     public function removeRelation($sessionId, $relationIds)
     {
         // Form removeRelation parameters
-        $removeRelationParameters = array(
+        $relationParameters = array(
             'relationIds'  => implode(',', $relationIds)
         );
 
-        $response = Elvis::query($sessionId, 'removeRelation', $removeRelationParameters);
+        $response = Elvis::query($sessionId, 'removeRelation', $relationParameters);
 
         return $response;
     }
@@ -370,10 +362,10 @@ class Elvis
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @param (string) (queryFile) The path to the SQL file with the query you want to run.
     * @param (integer) (num) Number of rows to return. Specify 0 to return all rows.
-    * @param (array) ($additionalQueryParameters) Array of additional query parameters passed to the SQL in name => value format.
+    * @param (array) ($additionalQueries) Array of additional query parameters passed to the SQL in name => value format.
     * @return (object) Returns an empty 200 OK status.
     */
-    public function queryStats($sessionId, $queryFile, $num = 1000, $additionalQueryParameters = array())
+    public function queryStats($sessionId, $queryFile, $num = 1000, $additionalQueries = array())
     {
         // Form queryStats parameters
         $queryStatsParameters = array(
@@ -382,7 +374,7 @@ class Elvis
         );
 
         // Add additional parameters
-        $queryStatsParameters = array_merge($queryStatsParameters, $additionalQueryParameters);
+        $queryStatsParameters = array_merge($queryStatsParameters, $additionalQueries);
 
         $response = Elvis::query($sessionId, 'queryStats', $queryStatsParameters);
 
@@ -397,10 +389,10 @@ class Elvis
     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
     * @param (string) (assetId) The id of the asset for which the action is logged.
     * @param (string) (action) Name of the action that is logged. This must start with "CUSTOM_ACTION_", if it does not, this prefix will be added to the logged action name.
-    * @param (array) ($additionalQueryParameters) Array of additional query parameters that are logged as details for the action.
+    * @param (array) ($additionalQueries) Array of additional query parameters that are logged as details for the action.
     * @return (object) This call does not return a value, it only returns an http 200 status OK.
     */
-    public function logUsage($sessionId, $assetId, $action, $additionalQueryParameters = array())
+    public function logUsage($sessionId, $assetId, $action, $additionalQueries = array())
     {
         // Form logUsage parameters
         $logUsageParameters = array(
@@ -409,7 +401,7 @@ class Elvis
         );
 
         // Add additional parameters
-        $logUsageParameters = array_merge($logUsageParameters, $additionalQueryParameters);
+        $logUsageParameters = array_merge($logUsageParameters, $additionalQueries);
 
         $response = Elvis::query($sessionId, 'logUsage', $logUsageParameters);
 
@@ -471,10 +463,8 @@ class Elvis
     */
     public function undocheckout($sessionId, $assetId)
     {
-        // Form undocheckout parameters
-        $undocheckoutParamaters = array('assetId' => $assetId);
-
-        $response = Elvis::query($sessionId, 'undocheckout', $undocheckoutParamaters);
+        // Perform a query
+        $response = Elvis::query($sessionId, 'undocheckout', ['assetId' => $assetId]);
 
         return $response;
     }
@@ -555,7 +545,7 @@ class Elvis
         $filmstripZoomLevel = null
     ) {
         // Form createAuthKey parameters
-        $createAuthKeyParameters = array(
+        $authKeySettings = array(
             'subject'               => $subject,
             'validUntil'            => $validUntil,
             'assetIds'              => implode(',', $assetIds),
@@ -578,7 +568,7 @@ class Elvis
         );
 
          // Do the query
-        $response = Elvis::query($sessionId, 'createAuthKey', $createAuthKeyParameters);
+        $response = Elvis::query($sessionId, 'createAuthKey', $authKeySettings);
 
         return $response;
     }
@@ -633,7 +623,7 @@ class Elvis
         $filmstripZoomLevel = null
     ) {
         // Form updateAuthKey parameters
-        $updateAuthKeyParameters = array(
+        $authKeySettings = array(
             'key'                   => $key,
             'subject'               => $subject,
             'validUntil'            => $validUntil,
@@ -656,7 +646,7 @@ class Elvis
         );
 
          // Do the query
-        $response = Elvis::query($sessionId, 'updateAuthKey', $updateAuthKeyParameters);
+        $response = Elvis::query($sessionId, 'updateAuthKey', $authKeySettings);
 
         return $response;
     }
@@ -673,12 +663,12 @@ class Elvis
     public function revokeAuthKeys($sessionId, $keys)
     {
         // Form revokeAuthKeys parameters
-        $revokeAuthKeysParameters = array(
+        $authKeys = array(
             'keys'      => implode(',', $keys),
         );
 
          // Do the query
-        $response = Elvis::query($sessionId, 'revokeAuthKeys', $revokeAuthKeysParameters);
+        $response = Elvis::query($sessionId, 'revokeAuthKeys', $authKeys);
 
         return $response;
     }

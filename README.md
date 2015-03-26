@@ -98,7 +98,7 @@ Wrapper for the search API, returns the hits found. You can find more informatio
 Parameter | Description
 --------- | -----------
 sessionId| Session ID returned by the login function.
-q | Actual Lucene query, you can find more details in https://helpcenter.woodwing.com/hc/en-us/articles/202249409-Query-syntax
+query | Actual Lucene query, you can find more details in https://helpcenter.woodwing.com/hc/en-us/articles/202249409-Query-syntax
 start | First hit to be returned. Starting at 0 for the first hit. Used to skip hits to return 'paged' results. Default is 0.
 num | Number of hits to return. Specify 0 to return no hits, this can be useful if you only want to fetch facets data. Default is 50.
 sort | The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202967175-REST-search
@@ -134,7 +134,7 @@ This call updates an existing asset in Elvis with a new file. It can also be use
 Parameter | Description
 --------- | -----------
 sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
-id|Elvis asset id to be updated
+asset_id|Elvis asset id to be updated
 filename | The file that will replace the current file. Define as null if you just want to update metadata.
 metadata | Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
 
@@ -203,7 +203,7 @@ Remove one or more assets. This will remove only assets, no folders.
 Parameter | Description
 --------- | -----------
 sessionId | Session ID returned by the login function. This is used for further queries towards Elvis
-q | A query that matches all assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
+query | A query that matches all assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
    ids| Array containing the assetId's for the assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
 folderPath | The folderPath of the folder to remove. All assets and subfolders will be removed.
 async| When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
@@ -267,7 +267,7 @@ Parameter | Description
 --------- | -----------
 sessionId | Session ID returned by the login function. This is used for     queryFile | The path to the SQL file with the query you want to run.
 num | Number of rows to return. Specify 0 to return all rows.
-additionalQueryParameters | Array of additional query parameters passed to the SQL in name => value format.
+additionalQueries | Array of additional query parameters passed to the SQL in name => value format.
     
 For more details about the parameters see https://helpcenter.woodwing.com/hc/en-us/articles/202250179-REST-query-stats. Returns the result of the SQL query as an object. 
 
