@@ -37,7 +37,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function tearDown()
     {
         // Remove asset from Elvis
-        //$remove = Elvis::remove($this->sessionId, null, array($this->assetId), null, false);
+        $remove = Elvis::remove($this->sessionId, null, array($this->assetId), null, false);
 
         // Log out from Elvis
         $logout = Elvis::logout($this->sessionId);
@@ -51,7 +51,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testLogin()
     {
         // Test that login is succesful and we sessionId
-        $this->assertInternalType('string', $this->sessionId);
+        $this->assertInternalType('string', $this->sessionId);        
     }
 
      /**
@@ -62,8 +62,8 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testLoginWithIncorrectUsernameAndPassword()
     {
         // Set incorrect username and password
-        Config::set('elvis::username', 'incorrect_username');
-        Config::set('elvis::password', 'incorrect_password');
+        Config::set('elvis.username', 'incorrect_username');
+        Config::set('elvis.password', 'incorrect_password');
 
         // Try login
         $sessionId = Elvis::login();
@@ -89,7 +89,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertInternalType('array', $profile->groups);
 
         // Check that username is the same we used to log in
-        $this->assertEquals($profile->username, Config::get('elvis::username'));
+        $this->assertEquals($profile->username, Config::get('elvis.username'));
     }
 
     /**
@@ -321,8 +321,8 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertEquals($searchResults->hits[0]->relation->relationType, 'related');
         $this->assertEquals($searchResults->hits[0]->relation->target1Id, $asset1Id);
         $this->assertEquals($searchResults->hits[0]->relation->target2Id, $asset2Id);
-        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationModifier, Config::get('elvis::username'));
-        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationCreator, Config::get('elvis::username'));
+        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationModifier, Config::get('elvis.username'));
+        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationCreator, Config::get('elvis.username'));
 
         // Remove the relation
         $removeRelation = Elvis::removeRelation($this->sessionId, array($searchResults->hits[0]->relation->relationId));
@@ -464,7 +464,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 
         // Get the asset info again and check that the checkout flag is updated
         $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
-        $this->assertEquals($searchResults->hits[0]->metadata->checkedOutBy, Config::get('elvis::username'));
+        $this->assertEquals($searchResults->hits[0]->metadata->checkedOutBy, Config::get('elvis.username'));
         $this->assertInternalType('object', $searchResults->hits[0]->metadata->checkedOut);
 
         // Undo the asset
