@@ -42,8 +42,13 @@ class Elvis
     {
         // Call logout REST API
         $response = Elvis::query($sessionId, 'logout');
-
-        return $response->logoutSuccess;
+        
+         // Return null if login failed, otherwise the session id.
+        if (isset($response->logoutSuccess) && $response->logoutSuccess === true) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
