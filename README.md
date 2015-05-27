@@ -14,7 +14,7 @@ Add the package to your `composer.json` and run `composer update`.
 
     {
         "require": {
-            "lasselehtinen/elvis": "2.0.0"
+            "lasselehtinen/elvis": "2.0.2"
         }
     }
 
