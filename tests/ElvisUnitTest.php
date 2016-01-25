@@ -3,12 +3,12 @@
 class ElvisUnitTest extends Orchestra\Testbench\TestCase
 {
     // Override package service provider and alias
-    protected function getPackageProviders()
+    protected function getPackageProviders($app)
     {
         return array('Lasselehtinen\Elvis\ElvisServiceProvider');
     }
 
-    protected function getPackageAliases()
+    protected function getPackageAliases($app)
     {
         return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
     }    
@@ -32,7 +32,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         $uri = Elvis::getQueryUrl('updatebulk', $queryParameters, $metadata);
 
         // Form expected URI
-        $expected_uri = Config::get('elvis.api_endpoint_uri') . 'updatebulk?q=gtin:123&async=1&metadata=["publicationName:Test"]';
+        $expected_uri = config('elvis.api_endpoint_uri') . 'updatebulk?q=gtin:123&async=1&metadata=["publicationName:Test"]';
         $this->assertEquals(urldecode($uri), $expected_uri);
     }
 
@@ -52,7 +52,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         $uri = Elvis::getQueryUrl('search', $queryParameters);
 
         // Form expected URI
-        $expected_uri = Config::get('elvis.api_endpoint_uri') . 'search?facets=tags,extension';
+        $expected_uri = config('elvis.api_endpoint_uri') . 'search?facets=tags,extension';
         $this->assertEquals(urldecode($uri), $expected_uri);
     }
 
@@ -72,7 +72,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         $uri = Elvis::getQueryUrl('search', $queryParameters);
 
         // Form expected URI
-        $expected_uri = Config::get('elvis.api_endpoint_uri') . 'search?facet.tags.selection=beach&facet.extension.selection=jpg,png';
+        $expected_uri = config('elvis.api_endpoint_uri') . 'search?facet.tags.selection=beach&facet.extension.selection=jpg,png';
         $this->assertEquals(urldecode($uri), $expected_uri);
     }
 
@@ -95,7 +95,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         $uri = Elvis::getQueryUrl('zip', $zipParameters);
 
         // Form expected URI
-        $hostname = str_replace('services/', '', Config::get('elvis.api_endpoint_uri'));
+        $hostname = str_replace('services/', '', config('elvis.api_endpoint_uri'));
         $expected_uri =  $hostname . 'zip/filename.zip?downloadKind=preview&assetIds=assetId1,assetId2';
         $this->assertEquals(urldecode($uri), $expected_uri);
     }
@@ -115,7 +115,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
         $uri = Elvis::getQueryUrl('checkout', $checkoutParameters);
 
         // Form expected URI
-        $expected_uri = Config::get('elvis.api_endpoint_uri') . 'checkout/assetId';
+        $expected_uri = config('elvis.api_endpoint_uri') . 'checkout/assetId';
         $this->assertEquals(urldecode($uri), $expected_uri);
     }
 }

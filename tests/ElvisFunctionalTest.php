@@ -6,12 +6,12 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     protected $assetId;
 
     // Override package service provider and alias
-    protected function getPackageProviders()
+    protected function getPackageProviders($app)
     {
         return array('Lasselehtinen\Elvis\ElvisServiceProvider');
     }
 
-    protected function getPackageAliases()
+    protected function getPackageAliases($app)
     {
         return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
     }
@@ -24,9 +24,9 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         Dotenv::load(__DIR__);
 
         // Set Laravel configuration parameters
-        Config::set('elvis.api_endpoint_uri', getenv('ELVIS_API_ENDPOINT_URI'));
-        Config::set('elvis.username', getenv('ELVIS_USERNAME'));
-        Config::set('elvis.password', getenv('ELVIS_PASSWORD'));
+        config(['elvis.api_endpoint_uri' => getenv('ELVIS_API_ENDPOINT_URI')]);
+        config(['elvis.username' => getenv('ELVIS_USERNAME')]);
+        config(['elvis.password' => getenv('ELVIS_PASSWORD')]);
 
         // Get session Id to user in the queries
         $this->sessionId = Elvis::login();
@@ -59,7 +59,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testLogin()
     {
         // Test that login is succesful and we sessionId
-        $this->assertInternalType('string', $this->sessionId);        
+        $this->assertInternalType('string', $this->sessionId);
     }
 
      /**
@@ -70,8 +70,8 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testLoginWithIncorrectUsernameAndPassword()
     {
         // Set incorrect username and password
-        Config::set('elvis.username', 'incorrect_username');
-        Config::set('elvis.password', 'incorrect_password');
+        config(['elvis.username' => 'incorrect_username']);
+        config(['elvis.password' => 'incorrect_password']);
 
         // Try login
         $sessionId = Elvis::login();
@@ -97,7 +97,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertInternalType('array', $profile->groups);
 
         // Check that username is the same we used to log in
-        $this->assertEquals($profile->username, Config::get('elvis.username'));
+        $this->assertEquals($profile->username, config('elvis.username'));
     }
 
     /**
@@ -329,8 +329,8 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertEquals($searchResults->hits[0]->relation->relationType, 'related');
         $this->assertEquals($searchResults->hits[0]->relation->target1Id, $asset1Id);
         $this->assertEquals($searchResults->hits[0]->relation->target2Id, $asset2Id);
-        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationModifier, Config::get('elvis.username'));
-        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationCreator, Config::get('elvis.username'));
+        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationModifier, config('elvis.username'));
+        $this->assertEquals($searchResults->hits[0]->relation->relationMetadata->relationCreator, config('elvis.username'));
 
         // Remove the relation
         $removeRelation = Elvis::removeRelation($this->sessionId, array($searchResults->hits[0]->relation->relationId));
@@ -474,7 +474,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 
         // Get the asset info again and check that the checkout flag is updated
         $searchResults = Elvis::search($this->sessionId, 'id:'.$this->assetId);
-        $this->assertEquals($searchResults->hits[0]->metadata->checkedOutBy, Config::get('elvis.username'));
+        $this->assertEquals($searchResults->hits[0]->metadata->checkedOutBy, config('elvis.username'));
         $this->assertInternalType('object', $searchResults->hits[0]->metadata->checkedOut);
 
         // Undo the asset
