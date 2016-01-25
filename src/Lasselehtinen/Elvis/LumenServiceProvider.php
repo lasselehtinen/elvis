@@ -1,6 +1,6 @@
 <?php
 
-namespace LasseLehtinen\Elvis;
+namespace Lasselehtinen\Elvis;
 
 use Illuminate\Support\ServiceProvider;
 

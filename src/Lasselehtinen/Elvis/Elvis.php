@@ -1,6 +1,6 @@
 <?php
 
-namespace LasseLehtinen\Elvis;
+namespace Lasselehtinen\Elvis;
 
 // Import classes to use the Laravel config package
 use Config;
