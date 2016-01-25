@@ -1,4 +1,6 @@
-<?php namespace LasseLehtinen\Elvis;
+<?php
+
+namespace LasseLehtinen\Elvis;
 
 // Import classes to use the Laravel config package
 use Config;
@@ -16,8 +18,8 @@ class Elvis
     {
         // Form login parameters
         $loginParameters = array(
-            'username' => Config::get('elvis.username'),
-            'password' => Config::get('elvis.password')
+            'username' => config('elvis.username'),
+            'password' => config('elvis.password')
         );
         
         $response = Elvis::query(null, 'login', $loginParameters);
@@ -776,7 +778,7 @@ class Elvis
     {
         // Form basic URI
         $baseUrl = array();
-        $baseUrl['baseUrl'] = Config::get('elvis.api_endpoint_uri');
+        $baseUrl['baseUrl'] = config('elvis.api_endpoint_uri');
         $baseUrl['endpoint'] = $endpoint;
 
         // Add filename to Zip download
