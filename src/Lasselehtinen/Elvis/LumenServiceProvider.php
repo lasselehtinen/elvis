@@ -23,6 +23,18 @@ class LumenServiceProvider extends ServiceProvider
     */
     public function register()
     {
-      //
+        $this->app->singleton('elvis', function () {
+            return new Elvis;
+        });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['elvis'];
     }
 }
