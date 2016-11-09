@@ -14,7 +14,7 @@ Add the package to your `composer.json` and run `composer update`.
 
     {
         "require": {
-            "lasselehtinen/elvis": "2.0.2"
+            "lasselehtinen/elvis": "3.0.0"
         }
     }
 
@@ -24,7 +24,7 @@ Add the service provider and alias in `config/app.php`:
     
     'providers' => array(
         ...
-        'Lasselehtinen\Elvis\ElvisServiceProvider'
+        Lasselehtinen\Elvis\ElvisServiceProvider::class
     ),
     
 ### Step 3
