@@ -730,7 +730,12 @@ class Elvis
                     $uri,
                     array(
                         'headers' => ['Cookie' => 'JSESSIONID=' . $sessionId],
-                        'form_params' => ['Filedata' => fopen($filename, 'r')],
+                        'multipart' => [
+                            [
+                                'name' => 'Filedata',
+                                'contents' => fopen($filename, 'r'),
+                            ],
+                        ],
                     )
                 );
                 break;
