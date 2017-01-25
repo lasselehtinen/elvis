@@ -18,7 +18,7 @@ class ElvisServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([__DIR__.'/../../config/config.php' => config_path('elvis.php')]);
+        $this->publishes([__DIR__ . '/../../config/config.php' => config_path('elvis.php')]);
     }
 
     /**
@@ -28,7 +28,7 @@ class ElvisServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app['elvis'] = $this->app->share(function () {
+        $this->app->singleton('elvis', function () {
             return new Elvis();
         });
 
