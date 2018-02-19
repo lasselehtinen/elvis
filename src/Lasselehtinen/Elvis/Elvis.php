@@ -10,7 +10,7 @@ class Elvis
      *
      * Logins to Elvis with the credentials stored in the config
      *
-     * @return (string) Session ID for further queries
+     * @return (string) CSRF token for further queries
      */
     public function login()
     {
@@ -22,11 +22,11 @@ class Elvis
 
         $response = Elvis::query(null, 'login', $loginParameters);
 
-        // Return null if login failed, otherwise the session id.
+        // Return null if login failed, otherwise the CSRF token.
         if ($response->loginSuccess === false) {
             return null;
         } else {
-            return $response->sessionId;
+            return $response->csrfToken;
         }
     }
 
@@ -35,13 +35,13 @@ class Elvis
      *
      * Logouts from Elvis with the given session id
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @return (bool) (logoutSuccess) True if logout was succesfull
      */
-    public function logout($sessionId)
+    public function logout($token)
     {
         // Call logout REST API
-        $response = Elvis::query($sessionId, 'logout');
+        $response = Elvis::query($token, 'logout');
 
         // Return null if login failed, otherwise the session id.
         if (isset($response->logoutSuccess) && $response->logoutSuccess === true) {
@@ -56,7 +56,7 @@ class Elvis
      *
      * Wrapper for the search API, returns the hits found. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (q) Actual Lucene query, you can find more details in https://elvis.tenderapp.com/kb/technical/query-syntax
      * @param (int) (start) First hit to be returned. Starting at 0 for the first hit. Used to skip hits to return 'paged' results. Default is 0.
      * @param (int) (num) Number of hits to return. Specify 0 to return no hits, this can be useful if you only want to fetch facets data. Default is 50.
@@ -67,7 +67,7 @@ class Elvis
      * @param (array) (facetSelection) Array of facets and values where the facet is the key and the comma-delimited list of values that should be 'selected' for a given facet as the value.
      * @return (object) List of search results
      */
-    public function search($sessionId, $query, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
+    public function search($token, $query, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
     {
         // Form search parameters
         $searchParameters = [
@@ -82,7 +82,7 @@ class Elvis
         ];
 
         // Call the search REST API
-        $response = Elvis::query($sessionId, 'search', $searchParameters);
+        $response = Elvis::query($token, 'search', $searchParameters);
 
         return $response;
     }
@@ -92,7 +92,7 @@ class Elvis
      *
      * This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (path) The path to the folder in Elvis you want to list.
      * @param (string) (fromRoot) Allows returning multiple levels of folders with their children. When specified, this path is listed, and all folders below it up to the 'path' will have their children returned as well.
      * @param (bool) (includeFolders) Indicates if folders should be returned. Optional. Default is true.
@@ -100,7 +100,7 @@ class Elvis
      * @param (string) (includeExtensions) A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
      * @return (object) (results) An array of folders and assets.
      */
-    public function browse($sessionId, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
+    public function browse($token, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
     {
         // Form browse parameters
         $browseParameters = array(
@@ -112,7 +112,7 @@ class Elvis
         );
 
         // Call browse REST API
-        $response = Elvis::query($sessionId, 'browse', $browseParameters);
+        $response = Elvis::query($token, 'browse', $browseParameters);
 
         return $response;
     }
@@ -122,13 +122,13 @@ class Elvis
      *
      * Retrieve details about the user authenticated in the current browser session.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @return (object) Profile attached to the session
      */
-    public function profile($sessionId)
+    public function profile($token)
     {
         // Call profile REST API
-        $response = Elvis::query($sessionId, 'profile');
+        $response = Elvis::query($token, 'profile');
 
         return $response;
     }
@@ -138,15 +138,15 @@ class Elvis
      *
      * Upload and create an asset.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
      * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
      * @return (object) Information about the newly created asset
      */
-    public function create($sessionId, $filename, $metadata = null)
+    public function create($token, $filename, $metadata = null)
     {
 
-        $response = Elvis::query($sessionId, 'create', null, $metadata, $filename);
+        $response = Elvis::query($token, 'create', null, $metadata, $filename);
 
         return $response;
     }
@@ -156,16 +156,16 @@ class Elvis
      *
      * Upload and create an asset.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (id) Elvis asset id to be updated
      * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
      * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
      * @return (object) Elvis returns something strange, TODO investigate it
      */
-    public function update($sessionId, $asset_id, $filename, $metadata)
+    public function update($token, $asset_id, $filename, $metadata)
     {
         // Perform the query
-        $response = Elvis::query($sessionId, 'update', ['id' => $asset_id], $metadata, $filename);
+        $response = Elvis::query($token, 'update', ['id' => $asset_id], $metadata, $filename);
 
         return $response;
     }
@@ -175,13 +175,13 @@ class Elvis
      *
      * This call updates the metadata of multiple existing assets in Elvis.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (q) A query matching the assets that should be updated
      * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
      * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function updatebulk($sessionId, $query, $metadata, $async = false)
+    public function updatebulk($token, $query, $metadata, $async = false)
     {
         // Form updatebulk parameters
         $updateBulk = array(
@@ -190,7 +190,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'updatebulk', $updateBulk, $metadata);
+        $response = Elvis::query($token, 'updatebulk', $updateBulk, $metadata);
 
         return $response;
     }
@@ -200,7 +200,7 @@ class Elvis
      *
      * Move or rename a folder or a single asset.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (source) Either a folderPath or assetPath of the folder or asset to be moved or renamed.
      * @param (string) (target) The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
      * @param (string) (folderReplacePolicy) Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
@@ -209,7 +209,7 @@ class Elvis
      * @param (bool) (flattenFolders) When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function move($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false)
+    public function move($token, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false)
     {
         // Form move parameters
         $moveParameters = array(
@@ -222,7 +222,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'move', $moveParameters);
+        $response = Elvis::query($token, 'move', $moveParameters);
 
         return $response;
     }
@@ -232,7 +232,7 @@ class Elvis
      *
      * Copy a folder or a single asset.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (source) Either a folderPath or assetPath of the folder or asset to be moved or renamed.
      * @param (string) (target) The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
      * @param (string) (folderReplacePolicy) Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
@@ -242,7 +242,7 @@ class Elvis
      * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function copy($sessionId, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
+    public function copy($token, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
     {
         // Form copy parameters
         $copyParameters = array(
@@ -256,7 +256,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'copy', $copyParameters);
+        $response = Elvis::query($token, 'copy', $copyParameters);
 
         return $response;
     }
@@ -266,14 +266,14 @@ class Elvis
      *
      * Remove one or more assets. This will remove only assets, no folders.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (q) A query that matches all assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
      * @param (array) (ids) Array containing the assetId's for the assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
      * @param (string) (folderPath) The folderPath of the folder to remove. All assets and subfolders will be removed.
      * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function remove($sessionId, $query = null, $ids = null, $folderPath = null, $async = false)
+    public function remove($token, $query = null, $ids = null, $folderPath = null, $async = false)
     {
         if ($ids !== null && is_array($ids)) {
             $idsCommaSeparated = implode(",", $ids);
@@ -290,7 +290,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'remove', $removeParameters);
+        $response = Elvis::query($token, 'remove', $removeParameters);
 
         return $response;
     }
@@ -300,14 +300,14 @@ class Elvis
      *
      * Create one or more folders.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (path) The full folderPath of the folder to be created. This same parameter name can be specified multiple times to create several folders with one call.
      * @return (object) Information about the newly created folder
      */
-    public function createFolder($sessionId, $path)
+    public function createFolder($token, $path)
     {
         // Perform query
-        $response = Elvis::query($sessionId, 'createFolder', ['path' => $path]);
+        $response = Elvis::query($token, 'createFolder', ['path' => $path]);
 
         return $response;
     }
@@ -317,14 +317,14 @@ class Elvis
      *
      * This call creates a relation of a certain type between two assets in Elvis. For example, to add an asset to a collection.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (relationType) The type of relation to create. Read more at https://elvis.tenderapp.com/kb/content-management/relations
      * @param (string) (target1Id) The id of the asset on one side of the relation.
      * @param (string) (target2Id) The id of the asset on one side of the relation.
      * @param (array) (metadata) A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
      * @return (object) Returns an empty 200 OK status.
      */
-    public function createRelation($sessionId, $relationType, $target1Id, $target2Id, $metadata = null)
+    public function createRelation($token, $relationType, $target1Id, $target2Id, $metadata = null)
     {
         // Form createRelation parameters
         $relationParameters = array(
@@ -333,7 +333,7 @@ class Elvis
             'target2Id' => $target2Id,
         );
 
-        $response = Elvis::query($sessionId, 'createRelation', $relationParameters, $metadata);
+        $response = Elvis::query($token, 'createRelation', $relationParameters, $metadata);
 
         return $response;
     }
@@ -343,45 +343,18 @@ class Elvis
      *
      * Remove one or more relations between assets.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (array) (relationIds) Array containing relation id's to be removed. To find the relation ids, use a relation search (https://elvis.tenderapp.com/kb/api/rest-search).
      * @return (object) Returns an empty 200 OK status.
      */
-    public function removeRelation($sessionId, $relationIds)
+    public function removeRelation($token, $relationIds)
     {
         // Form removeRelation parameters
         $relationParameters = array(
             'relationIds' => implode(',', $relationIds),
         );
 
-        $response = Elvis::query($sessionId, 'removeRelation', $relationParameters);
-
-        return $response;
-    }
-
-    /**
-     * Query stats
-     *
-     * Query stats database for usage statistics.
-     *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (queryFile) The path to the SQL file with the query you want to run.
-     * @param (integer) (num) Number of rows to return. Specify 0 to return all rows.
-     * @param (array) ($additionalQueries) Array of additional query parameters passed to the SQL in name => value format.
-     * @return (object) Returns an empty 200 OK status.
-     */
-    public function queryStats($sessionId, $queryFile, $num = 1000, $additionalQueries = array())
-    {
-        // Form queryStats parameters
-        $queryStatsParameters = array(
-            'queryFile' => $queryFile,
-            'num' => $num,
-        );
-
-        // Add additional parameters
-        $queryStatsParameters = array_merge($queryStatsParameters, $additionalQueries);
-
-        $response = Elvis::query($sessionId, 'queryStats', $queryStatsParameters);
+        $response = Elvis::query($token, 'removeRelation', $relationParameters);
 
         return $response;
     }
@@ -391,13 +364,13 @@ class Elvis
      *
      * Logs an entry in the stats database for usage statistics about assets. A record will be added to the "usage_log" table, see method query stats for details.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (assetId) The id of the asset for which the action is logged.
      * @param (string) (action) Name of the action that is logged. This must start with "CUSTOM_ACTION_", if it does not, this prefix will be added to the logged action name.
      * @param (array) ($additionalQueries) Array of additional query parameters that are logged as details for the action.
      * @return (object) This call does not return a value, it only returns an http 200 status OK.
      */
-    public function logUsage($sessionId, $assetId, $action, $additionalQueries = array())
+    public function logUsage($token, $assetId, $action, $additionalQueries = array())
     {
         // Form logUsage parameters
         $logUsageParameters = array(
@@ -408,7 +381,7 @@ class Elvis
         // Add additional parameters
         $logUsageParameters = array_merge($logUsageParameters, $additionalQueries);
 
-        $response = Elvis::query($sessionId, 'logUsage', $logUsageParameters);
+        $response = Elvis::query($token, 'logUsage', $logUsageParameters);        
 
         return $response;
     }
@@ -418,13 +391,13 @@ class Elvis
      *
      * Retrieve message bundles from the Elvis server.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (array) (localChain) Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
      * @param (string) (ifModifiedSince) The date of the last requested cached messages, specified in milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
      * @param (string) (bundle) The bundle to return, can be either web or acm. The cmn bundle will always be returned combined with the requested bundle.
      * @return (object) Object containing all keys and messages.
      */
-    public function messages($sessionId, $localeChain = null, $ifModifiedSince = null, $bundle = null)
+    public function messages($token, $localeChain = null, $ifModifiedSince = null, $bundle = null)
     {
         // Form message parameters
         $messagesParameters = array(
@@ -433,7 +406,7 @@ class Elvis
             'bundle' => $bundle,
         );
 
-        $response = Elvis::query($sessionId, 'messages', $messagesParameters);
+        $response = Elvis::query($token, 'messages', $messagesParameters);
 
         return $response;
     }
@@ -443,16 +416,16 @@ class Elvis
      *
      * Checks out an asset from the system locking the file for other users.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (assetId) The Elvis id of the asset to be checked out.
      * @return (object) Object containing all keys and messages.
      */
-    public function checkout($sessionId, $assetId)
+    public function checkout($token, $assetId)
     {
         // Form checkout parameters
         $checkoutParameters = array('assetId' => $assetId);
 
-        $response = Elvis::query($sessionId, 'checkout', $checkoutParameters);
+        $response = Elvis::query($token, 'checkout', $checkoutParameters);
 
         return $response;
     }
@@ -462,14 +435,14 @@ class Elvis
      *
      * Undo a checkout for a single asset
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (assetId) Elvis id of the asset that was checked out.
      * @return (object) Object containing all keys and messages.
      */
-    public function undocheckout($sessionId, $assetId)
+    public function undocheckout($token, $assetId)
     {
         // Perform a query
-        $response = Elvis::query($sessionId, 'undocheckout', ['assetId' => $assetId]);
+        $response = Elvis::query($token, 'undocheckout', ['assetId' => $assetId]);
 
         return $response;
     }
@@ -479,13 +452,13 @@ class Elvis
      *
      * Download originals or previews as a ZIP file
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (filename) Filename of the zip file to be created
      * @param (string) (downloadKind) The type of the files that are included in the archive. Possible values are original or preview.
      * @param (array) (assetIds) Array containing the asset to be included in the Zip file
      * @return (object)
      */
-    public function zip($sessionId, $filename, $downloadKind, $assetIds)
+    public function zip($token, $filename, $downloadKind, $assetIds)
     {
         // Form zip parameters
         $zipParameters = array(
@@ -495,7 +468,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'zip', $zipParameters);
+        $response = Elvis::query($token, 'zip', $zipParameters);
 
         return $response;
     }
@@ -505,7 +478,7 @@ class Elvis
      *
      * Create an authKey in Elvis.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (subject) AuthKey subject
      * @param (string) (validUntil) Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
      * @param (array) (assetIds) Array of of asset id's to share, do not specify for a pure upload request (requestUpload must be true is this case)
@@ -528,7 +501,7 @@ class Elvis
      * @return (object)
      */
     public function createAuthKey(
-        $sessionId,
+        $token,
         $subject,
         $validUntil,
         $assetIds = null,
@@ -573,7 +546,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'createAuthKey', $authKeySettings);
+        $response = Elvis::query($token, 'createAuthKey', $authKeySettings);
 
         return $response;
     }
@@ -583,7 +556,7 @@ class Elvis
      *
      * Update an authKey in Elvis. With this API call it is possible to update certain properties of an authKey. Please note that it is not possible to add or remove assets from an authKey once it has been created.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (key) The authKey which will be updated.
      * @param (string) (subject) AuthKey subject
      * @param (string) (validUntil) Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
@@ -606,7 +579,7 @@ class Elvis
      * @return (object)
      */
     public function updateAuthKey(
-        $sessionId,
+        $token,
         $key,
         $subject,
         $validUntil,
@@ -651,7 +624,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'updateAuthKey', $authKeySettings);
+        $response = Elvis::query($token, 'updateAuthKey', $authKeySettings);
 
         return $response;
     }
@@ -661,11 +634,11 @@ class Elvis
      *
      * Revoke a previously created authKey.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (array) (keys) list of authKeys.
      * @return (object) Empty object
      */
-    public function revokeAuthKeys($sessionId, $keys)
+    public function revokeAuthKeys($token, $keys)
     {
         // Form revokeAuthKeys parameters
         $authKeys = array(
@@ -673,7 +646,7 @@ class Elvis
         );
 
         // Do the query
-        $response = Elvis::query($sessionId, 'revokeAuthKeys', $authKeys);
+        $response = Elvis::query($token, 'revokeAuthKeys', $authKeys);
 
         return $response;
     }
@@ -683,20 +656,20 @@ class Elvis
      *
      * Performs the actual REST query
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
      * @param (array) (parameters) All query parameters
      * @param (array) (metadata) Query parameters that will be converted to JSON array
      * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
      * @return (object) Query response or exception if something went wrong
      */
-    public function query($sessionId = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
+    public function query($token = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
     {
         // Form query URI
         $uri = $this->getQueryUrl($endpoint, $parameters, $metadata);
 
         // Get response for this URI
-        $response = $this->getResponse($sessionId, $uri, $endpoint, $filename);
+        $response = $this->getResponse($token, $uri, $endpoint, $filename);
 
         // Return the API JSON response as object
         return $response;
@@ -705,31 +678,39 @@ class Elvis
     /**
      * Do the query and check the response for errors and throws necessary exceptions
      *
-     * @param (string) (sessionId) Session ID to be used for the query
+     * @param (string) (token) Session ID to be used for the query
      * @param (string) (uri) URI of the request
      * @param (string) (endpoint) API endpoint
      * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
      * @return (object) Return object response
      *
      */
-    public function getResponse($sessionId, $uri, $endpoint, $filename)
+    public function getResponse($token, $uri, $endpoint, $filename)
     {
         // Create new Guzzle client
         $client = new \GuzzleHttp\Client();
-
+        
         // Form Guzzle query depending on the endpoint
         switch ($endpoint) {
-            // For login we dont set the cookie
-            case 'login':
-                $response = $client->get($uri);
+            // For login store the authToken in cookie
+            case 'login':                                
+                // Create Cookie jar
+                $jar = new \GuzzleHttp\Cookie\CookieJar();
+                $this->jar = $jar;
+
+                $response = $client->post($uri, ['cookies' => $this->jar]);                                
                 break;
 
             // For create we have store file contents and send it as variable Filedata
             case 'create':
+
                 $response = $client->post(
                     $uri,
                     array(
-                        'headers' => ['Cookie' => 'JSESSIONID=' . $sessionId],
+                        'cookies' => $this->jar,
+                        'headers' => [
+                            'X-CSRF-TOKEN' => $token,
+                        ],
                         'multipart' => [
                             [
                                 'name' => 'Filedata',
@@ -745,13 +726,21 @@ class Elvis
                 $filename = $this->createUniqueZipFilename();
 
                 $response = $client->get($uri, [
-                    'headers' => ['Cookie' => 'JSESSIONID=' . $sessionId],
+                    'cookies' => $this->jar,
+                    'headers' => [
+                        'X-CSRF-TOKEN' => $token,
+                    ],
                     'save_to' => $filename,
                 ]);
                 break;
 
             default:
-                $response = $client->get($uri, ['headers' => ['Cookie' => 'JSESSIONID=' . $sessionId]]);
+                $response = $client->post($uri, [
+                    'cookies' => $this->jar,
+                    'headers' => [
+                        'X-CSRF-TOKEN' => $token,
+                    ]
+                ]);
                 break;
         }
 
@@ -771,7 +760,7 @@ class Elvis
      *
      * Creates the URL with all the session id's, parameters etc.
      *
-     * @param (string) (sessionId) Session ID returned by the login function. This is used for further queries towards Elvis
+     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
      * @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
      * @param (array) (parameters) All query parameters
      * @param (array) (metadata) Query parameters that will be converted to JSON array

@@ -15,7 +15,8 @@
     },
     "require-dev": {
         "orchestra/testbench": "~3.6",
-        "vlucas/phpdotenv": "~2.2"
+        "vlucas/phpdotenv": "~2.2",
+        "namshi/cuzzle": "^2.0"
     },
     "autoload": {
         "psr-0": {

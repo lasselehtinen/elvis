@@ -90,7 +90,6 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Create folder](#createfolder)
  - [Create relation](#createrelation)
  - [Remove relation](#removerelation)
- - [Query stats](#querystats)
  - [Log usage stats](#logusagestats)
  - [Messages / Localization](#messages)
  - [Checkout](#checkout)
@@ -101,21 +100,21 @@ Edit your `app/config/packages/lasselehtinen/elvis/config.php` and change the de
  - [Logout](#logout)
 
 ### <a name="login">Login</a>
-You need to login as the first step. Store the sessionId returned by the function and pass it to further requests.
+You need to login as the first step. Store the CSRF token returned by the function and pass it to further requests.
 
-    $sessionId = Elvis::login();
-    $search_results = Elvis::search($sessionId, 'gtin:9789510123454');
+    $token = Elvis::login();
+    $search_results = Elvis::search($token, 'gtin:9789510123454');
 
 ### <a name="browse">Browse</a>
 This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client. Read more at https://helpcenter.woodwing.com/hc/en-us/sections/200449479-API.
 
 > Note: Even though it is possible to return the assets in folders, doing so is not advised. The browse call does not limit the number of results, so if there are 10000 assets in a folder it will return all of them. It is better to use a search to find the assets in a folder and fetch them in pages.
 
-    $browse_results = Elvis::browse($sessionId, '/Folder/');
+    $browse_results = Elvis::browse($token, '/Folder/');
 
 Parameter | Description
 --------- | -----------
-sessionId| Session ID returned by the login function.
+token| CSRF token returned by the login function.
 path | The path to the folder in Elvis you want to list. Path is automatically encoded.
 fromRoot | Allows returning multiple levels of folders with their children. When specified, this path is listed, and all folders below it up to the 'path' will have their children returned as well. This ability can be used to initialize an initial path in a column tree folder browser with one server call.
 includeFolders | Indicates if folders should be returned.
@@ -127,11 +126,11 @@ Wrapper for the search API, returns the hits found. You can find more informatio
 
 **Simple search:**
 
-    $search_results = Elvis::search($sessionId, 'gtin:9789510123454');
+    $search_results = Elvis::search($token, 'gtin:9789510123454');
 
 Parameter | Description
 --------- | -----------
-sessionId| Session ID returned by the login function.
+token| CSRF token returned by the login function.
 query | Actual Lucene query, you can find more details in https://helpcenter.woodwing.com/hc/en-us/articles/202249409-Query-syntax
 start | First hit to be returned. Starting at 0 for the first hit. Used to skip hits to return 'paged' results. Default is 0.
 num | Number of hits to return. Specify 0 to return no hits, this can be useful if you only want to fetch facets data. Default is 50.
@@ -145,25 +144,25 @@ facetSelection | Array of facets and values with the facet as the key and the co
 ### <a name="profile">Profile</a>
 Retrieve details about the authenticated user.
 
-    $profile = Elvis::profile($sessionId);
+    $profile = Elvis::profile($token);
 
 ### <a name="create">Create</a>
 This call will create a new asset in Elvis. It can be used to upload files into Elvis. It can also be used to create 'virtual' assets like collections. In that case no file has to be uploaded and Elvis will create a 0 kb placeholder for the virtual asset. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202967215-REST-create.
 
 **Note:** Either assetPath, filename or name as to be specified in the metadata.
 
-    $create = Elvis::create($sessionId, './file.txt', array('assetPath' => '/Users/demouser/filename.txt'));
+    $create = Elvis::create($token, './file.txt', array('assetPath' => '/Users/demouser/filename.txt'));
 
 Parameter | Description
 --------- | -----------
-sessionId| Session ID returned by the login function.
+token| CSRF token returned by the login function.
 filename|The local filename to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used. Please note that in this case, you give the local filepath as a parameter. The wrapper will then convert it multipart/file.
 metadata|Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
 
 ### <a name="update">Update</a>
 This call updates an existing asset in Elvis with a new file. It can also be used to update metadata. Works pretty much the same ways a create. Only difference is that you given additional parameter, the asset id. Read more at https://helpcenter.woodwing.com/hc/en-us/articles/202250049-REST-update.
 
-    $update = Elvis::update($sessionId, '1_OSDdstqxbACb97Vd-ret', null, array('Description' => 'Nice view'));
+    $update = Elvis::update($token, '1_OSDdstqxbACb97Vd-ret', null, array('Description' => 'Nice view'));
 
 Parameter | Description
 --------- | -----------
@@ -177,7 +176,7 @@ This call updates the metadata of multiple existing assets in Elvis.
 
 *Available since Elvis 3.1*
 
-    $updatebulk = Elvis::updatebulk($sessionId, 'tags:animal', array('status' => 'Correction'));
+    $updatebulk = Elvis::updatebulk($token, 'tags:animal', array('status' => 'Correction'));
 
 Parameter | Description
 --------- | -----------
@@ -193,7 +192,7 @@ Move or rename a folder or a single asset. You can combine a rename operation an
 
 When you move or rename a folder, all assets contained in the folder will also be moved to the new location. The subfolder structure will be kept intact.
 
-    $rename = Elvis::move($sessionId, '/Path/to/asset/filename.ext', '/Path/to/asset/new-filename.ext');
+    $rename = Elvis::move($token, '/Path/to/asset/filename.ext', '/Path/to/asset/new-filename.ext');
 
 Parameter | Description
 --------- | -----------
@@ -212,7 +211,7 @@ Copy a folder or a single asset.
 
 When you copy a folder, all subfolders and assets contained in it will also be copied to the new location. The subfolder structure will be kept intact unless you set flattenFolder to true.
 
-    $copy = Elvis::copy($sessionId, '/Path/to/asset/filename.ext', '/Path/to/asset/copy-filename.ext');
+    $copy = Elvis::copy($token, '/Path/to/asset/filename.ext', '/Path/to/asset/copy-filename.ext');
 
 Parameter | Description
 --------- | -----------
@@ -232,7 +231,7 @@ Returns either processedCount or processId depending on the value of async.
 Remove one or more assets. This will remove only assets, no folders.
 
     $ids = array('1_OSDdstqxbACb97Vd-ret', '1wefOS6bauK8uRxi0rn9EK');
-    $remove = Elvis::remove($sessionId, null, $ids, null, false);
+    $remove = Elvis::remove($token, null, $ids, null, false);
 
 Parameter | Description
 --------- | -----------
@@ -249,7 +248,7 @@ Returns either processedCount or processId depending on the value of async.
 ### <a name="createfolder">Create folder</a>
 Remove one or more assets. This will remove only assets, no folders.
 
-    $createFolder = Elvis::createFolder($sessionId, '/Users/lasleh/New');
+    $createFolder = Elvis::createFolder($token, '/Users/lasleh/New');
 
 Parameter | Description
 --------- | -----------
@@ -266,7 +265,7 @@ Returns an object with the olderPaths of each folder as key with the correspondi
 ### <a name="createrelation">Create relation</a>
 Remove one or more assets. This will remove only assets, no folders.
 
-    $createRelation = Elvis::createRelation($sessionId, 'contains', 'FWiH0ipWKVl8CkbFGm9me9', 'CFN7pN2S4GFBz4Vorc34VJ');
+    $createRelation = Elvis::createRelation($token, 'contains', 'FWiH0ipWKVl8CkbFGm9me9', 'CFN7pN2S4GFBz4Vorc34VJ');
 
 Parameter | Description
 --------- | -----------
@@ -281,7 +280,7 @@ The operation returns an empty 200 OK status. If the operation fails, an error p
 ### <a name="removerelation">Remove relation</a>
 Remove one or more relations between assets.
 
-    $removeRelation = Elvis::removeRelation($sessionId, ['77-nZwDXaTJ96lhhaDvp0t']);
+    $removeRelation = Elvis::removeRelation($token, ['77-nZwDXaTJ96lhhaDvp0t']);
 
 Parameter | Description
 --------- | -----------
@@ -292,23 +291,10 @@ The operation returns an empty 200 OK status.
 
 If the operation fails, an error page with a 500 error status will be returned.
 
-### <a name="querystats">Query stats</a>
-Query stats database for usage statistics.
-
-    $queryStats = Elvis::queryStats($sessionId, 'path_to/query.sql', 10);
-
-Parameter | Description
---------- | -----------
-sessionId | Session ID returned by the login function. This is used for     queryFile | The path to the SQL file with the query you want to run.
-num | Number of rows to return. Specify 0 to return all rows.
-additionalQueries | Array of additional query parameters passed to the SQL in name => value format.
-    
-For more details about the parameters see https://helpcenter.woodwing.com/hc/en-us/articles/202250179-REST-query-stats. Returns the result of the SQL query as an object. 
-
 ### <a name="logusagestats">Log usage stats</a>
 Logs an entry in the stats database for usage statistics about assets. A record will be added to the "usage_log" table, see [Query stats](#querystats) for details.
 
-    $logUsage = Elvis::logUsage($sessionId, 'FWiH0ipWKVl8CkbFGm9me9', 'CUSTOM_ACTION_test', array('metadataKey'=>'value'));
+    $logUsage = Elvis::logUsage($token, 'FWiH0ipWKVl8CkbFGm9me9', 'CUSTOM_ACTION_test', array('metadataKey'=>'value'));
 
 Parameter | Description
 --------- | -----------
@@ -343,7 +329,7 @@ The common message bundle cmn is always returned and merged with the requested b
     
 For a full list of available messages see this [knowledge base article](https://helpcenter.woodwing.com/hc/en-us/articles/202967365-Translating-clients).    
 
-     $messages = Elvis::messages($sessionId, 'fi_FI');
+     $messages = Elvis::messages($token, 'fi_FI');
 
 Parameter | Description
 --------- | -----------
@@ -360,7 +346,7 @@ The service returns an object containing all keys and messages. Please note that
 ### <a name="checkout">Checkout</a>
 Checks out an asset from the system locking the file for other users.
 
-    $checkout= Elvis::checkout($sessionId, $assetId);
+    $checkout= Elvis::checkout($token, $assetId);
 
 Parameter | Description
 --------- | -----------
@@ -372,7 +358,7 @@ This will return the checkout metadata in the response as an object.
 ### <a name="undocheckout">Undocheckout</a>
 Undo a checkout for a single asset
 
-    $checkout = Elvis::undocheckout($sessionId, $assetId);
+    $checkout = Elvis::undocheckout($token, $assetId);
 
 Parameter | Description
 --------- | -----------
@@ -382,7 +368,7 @@ assetId | Elvis id of the asset that was checked out.
 ### <a name="createAuthKey">CreateAuthKey</a>
 Create an authKey in Elvis.
 
-    $createAuthKey = Elvis::createAuthKey($sessionId, 'Test', '2999-01-01', array($assetId));
+    $createAuthKey = Elvis::createAuthKey($token, 'Test', '2999-01-01', array($assetId));
 
 Parameter | Description
 --------- | -----------
@@ -414,7 +400,7 @@ Update an authKey in Elvis.
 
 With this API call it is possible to update certain properties of an authKey. Please note that it is not possible to add or remove assets from an authKey once it has been created.
 
-    $updateAuthKey = Elvis::updateAuthKey($sessionId, $authKey, 'Test', '2999-02-02');
+    $updateAuthKey = Elvis::updateAuthKey($token, $authKey, 'Test', '2999-02-02');
 
 Parameter | Description
 --------- | -----------
@@ -444,7 +430,7 @@ Returns object containing the authKey and links to different clients.
 ### <a name="revokeAuthKeys">RevokeAuthKeys</a>
 Create an authKey in Elvis.
 
-    $revokeAuthKeys = Elvis::revokeAuthKeys($sessionId, array($assetId));
+    $revokeAuthKeys = Elvis::revokeAuthKeys($token, array($assetId));
 
 Parameter | Description
 --------- | -----------
@@ -456,7 +442,7 @@ Returns an empty object if succesfull.
 ### <a name="logout">Logout</a>
 It is a good practice to close the session after you are done with your queries so it doesn't take API licences unnecessarily. You can use logout for this.
 
-    $logout = Elvis::logout($sessionId);
+    $logout = Elvis::logout($token);
 
 Parameter | Description
 --------- | -----------
