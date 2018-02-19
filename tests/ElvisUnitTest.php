@@ -3,12 +3,12 @@
 class ElvisUnitTest extends Orchestra\Testbench\TestCase
 {
     // Override package service provider and alias
-    protected function getPackageProviders()
+    protected function getPackageProviders($app)
     {
         return array('Lasselehtinen\Elvis\ElvisServiceProvider');
     }
 
-    protected function getPackageAliases()
+    protected function getPackageAliases($app)
     {
         return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
     }    

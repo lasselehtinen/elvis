@@ -6,12 +6,12 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     protected $assetId;
 
     // Override package service provider and alias
-    protected function getPackageProviders()
+    protected function getPackageProviders($app)
     {
         return array('Lasselehtinen\Elvis\ElvisServiceProvider');
     }
 
-    protected function getPackageAliases()
+    protected function getPackageAliases($app)
     {
         return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
     }
@@ -21,7 +21,8 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         parent::setUp();
 
         // Load Dotenv
-        Dotenv::load(__DIR__);
+        $dotenv = new Dotenv\Dotenv(__DIR__);
+        $dotenv->load();
 
         // Set Laravel configuration parameters
         Config::set('elvis.api_endpoint_uri', getenv('ELVIS_API_ENDPOINT_URI'));
