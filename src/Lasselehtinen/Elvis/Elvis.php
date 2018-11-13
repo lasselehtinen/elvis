@@ -6,6 +6,12 @@ use Config;
 class Elvis
 {
     /**
+     * The cookie jar
+     * @var GuzzleHttp\Cookie\CookieJar
+     */
+    private $jar;
+
+    /**
      * Login
      *
      * Logins to Elvis with the credentials stored in the config
@@ -381,7 +387,7 @@ class Elvis
         // Add additional parameters
         $logUsageParameters = array_merge($logUsageParameters, $additionalQueries);
 
-        $response = Elvis::query($token, 'logUsage', $logUsageParameters);        
+        $response = Elvis::query($token, 'logUsage', $logUsageParameters);
 
         return $response;
     }
@@ -689,16 +695,16 @@ class Elvis
     {
         // Create new Guzzle client
         $client = new \GuzzleHttp\Client();
-        
+
         // Form Guzzle query depending on the endpoint
         switch ($endpoint) {
             // For login store the authToken in cookie
-            case 'login':                                
+            case 'login':
                 // Create Cookie jar
                 $jar = new \GuzzleHttp\Cookie\CookieJar();
                 $this->jar = $jar;
 
-                $response = $client->post($uri, ['cookies' => $this->jar]);                                
+                $response = $client->post($uri, ['cookies' => $this->jar]);
                 break;
 
             // For create we have store file contents and send it as variable Filedata
@@ -739,7 +745,7 @@ class Elvis
                     'cookies' => $this->jar,
                     'headers' => [
                         'X-CSRF-TOKEN' => $token,
-                    ]
+                    ],
                 ]);
                 break;
         }
