@@ -14,7 +14,7 @@
         "guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {
-        "orchestra/testbench": "~3.6",
+        "orchestra/testbench": "~3.7.0|~3.8.0",
         "vlucas/phpdotenv": "~2.2",
         "namshi/cuzzle": "^2.0"
     },
