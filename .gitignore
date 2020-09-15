@@ -3,3 +3,4 @@ composer.phar
 composer.lock
 /src/config/testing/config.php
 .env
+.phpunit.result.cache

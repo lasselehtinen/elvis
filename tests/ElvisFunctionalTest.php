@@ -16,18 +16,18 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
         // Load Dotenv
-        $dotenv = new Dotenv\Dotenv(__DIR__);
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
         $dotenv->load();
 
         // Set Laravel configuration parameters
-        Config::set('elvis.api_endpoint_uri', getenv('ELVIS_API_ENDPOINT_URI'));
-        Config::set('elvis.username', getenv('ELVIS_USERNAME'));
-        Config::set('elvis.password', getenv('ELVIS_PASSWORD'));
+        Config::set('elvis.api_endpoint_uri', $_ENV['ELVIS_API_ENDPOINT_URI']);
+        Config::set('elvis.username', $_ENV['ELVIS_USERNAME']);
+        Config::set('elvis.password', $_ENV['ELVIS_PASSWORD']);
 
         // Get session Id to user in the queries
         $this->token = Elvis::login();
@@ -36,14 +36,14 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $temporaryFilename = tempnam("/tmp", "ElvisTest");
 
         // Create a file and store asset id
-        $create = Elvis::create($this->token, $temporaryFilename);
+        $create = Elvis::create($this->token, $temporaryFilename, ['folderPath' => '/Werner Söderström Osakeyhtiö/Testaus']);
         $this->assetId = $create->id;
 
         // Remove temporary file
         unlink($temporaryFilename);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         // Remove asset from Elvis
         $remove = Elvis::remove($this->token, null, array($this->assetId), null, false);
@@ -60,7 +60,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testLogin()
     {
         // Test that login is succesful and we get token
-        $this->assertInternalType('string', $this->token);
+        $this->assertIsString($this->token);
     }
 
     /**
@@ -91,11 +91,11 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $profile = Elvis::profile($this->token);
 
         // Chech that profile is in correct form
-        $this->assertInternalType('object', $profile);
+        $this->assertIsObject($profile);
 
         // Check that we have authorieties and user groups
-        $this->assertInternalType('array', $profile->authorities);
-        $this->assertInternalType('array', $profile->groups);
+        $this->assertIsArray($profile->authorities);
+        $this->assertIsArray($profile->groups);
 
         // Check that username is the same we used to log in
         $this->assertEquals($profile->username, Config::get('elvis.username'));
@@ -112,18 +112,19 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $temporaryFilename = tempnam("/tmp", "ElvisTest");
 
         // Create additional metadata
-        $metadata = array('gtin' => '123456', 'creatorName' => 'Test');
+        $metadata = array('gtin' => '123456', 'creatorName' => 'Test', 'folderPath' => '/Werner Söderström Osakeyhtiö/Testaus');
 
         // Create a file
         $create = Elvis::create($this->token, $temporaryFilename, $metadata);
 
         // Chech that response is in correct form
-        $this->assertInternalType('object', $create);
+        $this->assertIsObject($create);
 
         // Check that the given metadata is set on the object
-        foreach ($metadata as $key => $value) {
-            $this->assertEquals($create->metadata->$key, $value);
-        }
+        $this->assertEquals($create->metadata->gtin, '123456');
+        $this->assertIsArray($create->metadata->creatorName);
+        $this->assertEquals('Test', $create->metadata->creatorName[0]);
+        $this->assertEquals('/Werner Söderström Osakeyhtiö/Testaus', $create->metadata->folderPath);
     }
 
     /**
@@ -148,10 +149,10 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $this->assertEquals($searchResults->maxResultHits, 20);
 
         // Check metadataToReturn = 'metadataComplete' is returned in results
-        $this->assertInternalType('string', $searchResults->hits[0]->metadata->metadataComplete);
+        $this->assertIsString($searchResults->hits[0]->metadata->metadataComplete);
 
         // Check that requestSecret parameter is added to the response URL's
-        $this->assertContains('?requestSecret=', $searchResults->hits[0]->originalUrl);
+        $this->assertStringContainsString('requestSecret=', $searchResults->hits[0]->originalUrl);
     }
 
     /**
@@ -163,7 +164,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         // General search without any parameters
         $browse_results = Elvis::browse($this->token, '.');
-        $this->assertInternalType('array', $browse_results);
+        $this->assertIsArray($browse_results);
     }
 
     /**
@@ -177,7 +178,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $update = Elvis::update($this->token, $this->assetId, null, ['gtin' => '1234567890']);
 
         // Check we that get empty object as return
-        $this->assertInternalType('object', $update);
+        $this->assertIsObject($update);
 
         // Get the asset info again and check that the metadata is updated
         $searchResults = Elvis::search($this->token, 'id:' . $this->assetId);
@@ -216,7 +217,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
 
         // Check that we get one hit and the assetPath is correct type
         $this->assertEquals($searchResults->totalHits, 1);
-        $this->assertInternalType('string', $searchResults->hits[0]->metadata->assetPath);
+        $this->assertIsString($searchResults->hits[0]->metadata->assetPath);
 
         // Create new filename
         $pathParts = pathinfo($searchResults->hits[0]->metadata->assetPath);
@@ -255,20 +256,28 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         // Get assetPath of your created asset
         $profile = Elvis::profile($this->token);
 
-        // Create new folder in the the User Zone aka home directory
-        $newFolder = $profile->userZone . '/New folder';
+        // Remove and create new folder
+        $newFolder = '/Werner Söderström Osakeyhtiö/Testaus/New folder';
+        $removeFolder = Elvis::remove($this->token, null, null, $newFolder, false);
         $createFolder = Elvis::createFolder($this->token, $newFolder);
 
         // Check that we get correct response
         $this->assertEquals($createFolder->$newFolder, 'created');
+
+        // Check that we get one folder
+        $browse = Elvis::browse($this->token, '/Werner Söderström Osakeyhtiö/Testaus/');
+        $this->assertCount(1, $browse);
 
         // Try to create existing folder
         $createDuplicateFolder = Elvis::createFolder($this->token, $newFolder);
         $this->assertEquals($createDuplicateFolder->$newFolder, 'already exists');
 
         // Remove the created folder
-        $removeFolder = Elvis::remove($this->token, null, null, $newFolder, false);
-        $this->assertEquals($removeFolder->processedCount, 1);
+        $removeFolder = Elvis::remove($this->token, null, null, $newFolder, 'false');
+
+        // Browse should return empty array now
+        $browse = Elvis::browse($this->token, '/Werner Söderström Osakeyhtiö/Testaus/');
+        $this->assertEmpty($browse);
     }
 
     /**
@@ -281,14 +290,14 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     {
         // Create the first asset file
         $asset1Filename = tempnam("/tmp", "ElvisTest");
-        $metadata = array('creatorName' => 'Test user');
+        $metadata = array('creatorName' => 'Test user', 'folderPath' => '/Werner Söderström Osakeyhtiö/Testaus');
         $create = Elvis::create($this->token, $asset1Filename, $metadata);
         $asset1Id = $create->id;
         unlink($asset1Filename);
 
         // Create the second asset file
         $asset2Filename = tempnam("/tmp", "ElvisTest");
-        $metadata = array('creatorName' => 'Test user');
+        $metadata = array('creatorName' => 'Test user', 'folderPath' => '/Werner Söderström Osakeyhtiö/Testaus');
         $create = Elvis::create($this->token, $asset2Filename, $metadata);
         $asset2Id = $create->id;
         unlink($asset2Filename);
@@ -297,17 +306,17 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $createRelation = Elvis::createRelation($this->token, 'related', $asset1Id, $asset2Id);
 
         // Chech that response is in correct form
-        $this->assertInternalType('object', $createRelation);
+        $this->assertIsObject($createRelation);
 
         // Search for the relation
         $searchResults = Elvis::search($this->token, 'relatedTo:' . $asset1Id . ' relationTarget:child relationType:related');
 
         // Chech that response is in correct form
-        $this->assertInternalType('object', $searchResults);
+        $this->assertIsObject($searchResults);
         $this->assertEquals($searchResults->totalHits, 1);
 
         // Check that we have relation returned in the results
-        $this->assertInternalType('object', $searchResults->hits[0]->relation);
+        $this->assertIsObject($searchResults->hits[0]->relation);
 
         // Check that the relation information is correct
         $this->assertEquals($searchResults->hits[0]->relation->relationType, 'related');
@@ -338,11 +347,11 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $uniqueId = uniqid();
 
         // Create log entry
-        $logUsage = Elvis::logUsage($this->token, $this->assetId, 'CUSTOM_ACTION_Test', array('uniqueTestId' => $uniqueId));        
+        $logUsage = Elvis::logUsage($this->token, $this->assetId, 'CUSTOM_ACTION_Test', array('uniqueTestId' => $uniqueId));
 
         // Should return empty response
         $this->assertInstanceOf('stdClass', $logUsage);
-        $this->assertCount(0, get_object_vars($logUsage));        
+        $this->assertCount(0, get_object_vars($logUsage));
     }
 
     /**
@@ -356,7 +365,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $messages = Elvis::messages($this->token);
 
         // Check that have certain known labels
-        $this->assertInternalType('object', $messages);
+        $this->assertIsObject($messages);
         $this->assertEquals($messages->{'field_label.creatorEmail'}, 'E-mail');
 
         // Do a messages query with locale fi_FI
@@ -372,7 +381,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     public function testNoNewMessages()
     {
         // Do a messages query with locale fi_FI with Epoch timestamp in the far future (12/31/9999)
-        $messages = Elvis::messages($this->token, 'fi_FI', 1893456000000);                
+        $messages = Elvis::messages($this->token, 'fi_FI', 1893456000000);
         $this->assertNull($messages);
     }
 
@@ -386,7 +395,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         // Test without any parameters
         $zipDownload = Elvis::zip($this->token, 'test.zip', 'original', array($this->assetId));
 
-        $this->assertInternalType('string', $zipDownload->fileName);
+        $this->assertIsString($zipDownload->fileName);
         $this->assertEquals(200, $zipDownload->statusCode);
     }
 
@@ -412,7 +421,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $update = Elvis::update($this->token, $this->assetId, null, ['tags' => '-beach, -house, +villa, +sunny']);
 
         // Check we that get empty object as return
-        $this->assertInternalType('object', $update);
+        $this->assertIsObject($update);
 
         // Get the asset info again and check that the metadata is updated
         $searchResults = Elvis::search($this->token, 'id:' . $this->assetId);
@@ -436,7 +445,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         // Get the asset info again and check that the checkout flag is updated
         $searchResults = Elvis::search($this->token, 'id:' . $this->assetId);
         $this->assertEquals($searchResults->hits[0]->metadata->checkedOutBy, Config::get('elvis.username'));
-        $this->assertInternalType('object', $searchResults->hits[0]->metadata->checkedOut);
+        $this->assertIsObject($searchResults->hits[0]->metadata->checkedOut);
 
         // Undo the asset
         $undocheckout = Elvis::undocheckout($this->token, $this->assetId);
@@ -458,10 +467,10 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         $createAuthKey = Elvis::createAuthKey($this->token, 'Test', '2999-01-01', array($this->assetId));
 
         // Check that response is correct type
-        $this->assertInternalType('object', $createAuthKey);
+        $this->assertIsObject($createAuthKey);
 
         // Check that we get authKey
-        $this->assertInternalType('string', $createAuthKey->authKey);
+        $this->assertIsString($createAuthKey->authKey);
 
         // Checkout the asset
         $updateAuthKey = Elvis::updateAuthKey($this->token, $createAuthKey->authKey, 'Test', '2999-02-02');
@@ -469,6 +478,6 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         // Revoke the auth key
         $revokeAuthKeys = Elvis::revokeAuthKeys($this->token, array($createAuthKey->authKey));
 
-        $this->assertInternalType('object', $createAuthKey);
+        $this->assertIsObject($createAuthKey);
     }
 }

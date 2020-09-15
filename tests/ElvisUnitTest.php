@@ -11,7 +11,7 @@ class ElvisUnitTest extends Orchestra\Testbench\TestCase
     protected function getPackageAliases($app)
     {
         return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
-    }    
+    }
 
     /**
      * Tests basic query URI with all three parameters

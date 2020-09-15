@@ -2,6 +2,7 @@
 
 // Import classes to use the Laravel config package
 use Config;
+use Illuminate\Support\Str;
 
 class Elvis
 {
@@ -916,6 +917,6 @@ class Elvis
             mkdir($directory);
         }
 
-        return $directory . str_random(40) . '.zip';
+        return $directory . Str::random(40) . '.zip';
     }
 }
