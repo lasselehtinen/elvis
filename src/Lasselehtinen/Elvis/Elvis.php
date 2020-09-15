@@ -8,7 +8,7 @@ class Elvis
 {
     /**
      * The cookie jar
-     * @var GuzzleHttp\Cookie\CookieJar
+     * @var \GuzzleHttp\Cookie\CookieJar
      */
     private $jar;
 
@@ -17,7 +17,7 @@ class Elvis
      *
      * Logins to Elvis with the credentials stored in the config
      *
-     * @return (string) CSRF token for further queries
+     * @return null|string
      */
     public function login()
     {
@@ -32,9 +32,9 @@ class Elvis
         // Return null if login failed, otherwise the CSRF token.
         if ($response->loginSuccess === false) {
             return null;
-        } else {
-            return $response->csrfToken;
         }
+
+        return $response->csrfToken;
     }
 
     /**
@@ -42,8 +42,8 @@ class Elvis
      *
      * Logouts from Elvis with the given session id
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @return (bool) (logoutSuccess) True if logout was succesfull
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @return bool True if logout was succesfull
      */
     public function logout($token)
     {
@@ -63,16 +63,16 @@ class Elvis
      *
      * Wrapper for the search API, returns the hits found. You can find more information at https://elvis.tenderapp.com/kb/api/rest-search.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (q) Actual Lucene query, you can find more details in https://elvis.tenderapp.com/kb/technical/query-syntax
-     * @param (int) (start) First hit to be returned. Starting at 0 for the first hit. Used to skip hits to return 'paged' results. Default is 0.
-     * @param (int) (num) Number of hits to return. Specify 0 to return no hits, this can be useful if you only want to fetch facets data. Default is 50.
-     * @param (string) (sort) The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
-     * @param (string) (metadataToReturn) Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
-     * @param (bool) (appendRequestSecret) When set to true will append an encrypted code to the thumbnail, preview and original URLs.
-     * @param (string) (facetsToReturn) Comma-delimited list fields to return facet for. For example: facets=tags,assetDomain.
-     * @param (array) (facetSelection) Array of facets and values where the facet is the key and the comma-delimited list of values that should be 'selected' for a given facet as the value.
-     * @return (object) List of search results
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $query Actual Lucene query, you can find more details in https://elvis.tenderapp.com/kb/technical/query-syntax
+     * @param int $start First hit to be returned. Starting at 0 for the first hit. Used to skip hits to return 'paged' results. Default is 0.
+     * @param int $num Number of hits to return. Specify 0 to return no hits, this can be useful if you only want to fetch facets data. Default is 50.
+     * @param string $sort The sort order of returned hits. Comma-delimited list of fields to sort on. Read more at https://elvis.tenderapp.com/kb/api/rest-search
+     * @param string $metadataToReturn Comma-delimited list of metadata fields to return in hits. It is good practice to always specify just the metadata fields that you need. This will make the searches faster because less data needs to be transferred over the network. Read more at https://elvis.tenderapp.com/kb/api/rest-search
+     * @param bool $appendRequestSecret When set to true will append an encrypted code to the thumbnail, preview and original URLs.
+     * @param string $facets Comma-delimited list fields to return facet for. For example: facets=tags,assetDomain.
+     * @param array $facetSelection Array of facets and values where the facet is the key and the comma-delimited list of values that should be 'selected' for a given facet as the value.
+     * @return object List of search results
      */
     public function search($token, $query, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
     {
@@ -99,13 +99,13 @@ class Elvis
      *
      * This call is designed to allow you to browse folders and show their subfolders and collections, similar to how folder browsing works in the Elvis desktop client.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (path) The path to the folder in Elvis you want to list.
-     * @param (string) (fromRoot) Allows returning multiple levels of folders with their children. When specified, this path is listed, and all folders below it up to the 'path' will have their children returned as well.
-     * @param (bool) (includeFolders) Indicates if folders should be returned. Optional. Default is true.
-     * @param (bool) (includeAsset) Indicates if files should be returned. Optional. Default is true, but filtered to only include 'container' assets.
-     * @param (string) (includeExtensions) A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
-     * @return (object) (results) An array of folders and assets.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $path The path to the folder in Elvis you want to list.
+     * @param string $fromRoot Allows returning multiple levels of folders with their children. When specified, this path is listed, and all folders below it up to the 'path' will have their children returned as well.
+     * @param bool $includeFolders Indicates if folders should be returned. Optional. Default is true.
+     * @param bool $includeAsset Indicates if files should be returned. Optional. Default is true, but filtered to only include 'container' assets.
+     * @param string $includeExtensions A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
+     * @return object An array of folders and assets.
      */
     public function browse($token, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
     {
@@ -129,7 +129,7 @@ class Elvis
      *
      * Retrieve details about the user authenticated in the current browser session.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
      * @return (object) Profile attached to the session
      */
     public function profile($token)
@@ -145,9 +145,9 @@ class Elvis
      *
      * Upload and create an asset.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
-     * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $filename The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+     * @param array $metadata Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
      * @return (object) Information about the newly created asset
      */
     public function create($token, $filename, $metadata = null)
@@ -163,11 +163,11 @@ class Elvis
      *
      * Upload and create an asset.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (id) Elvis asset id to be updated
-     * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
-     * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
-     * @return (object) Elvis returns something strange, TODO investigate it
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $asset_id Elvis asset id to be updated
+     * @param string $filename The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+     * @param array $metadata Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+     * @return object Elvis returns something strange, TODO investigate it
      */
     public function update($token, $asset_id, $filename, $metadata)
     {
@@ -182,10 +182,10 @@ class Elvis
      *
      * This call updates the metadata of multiple existing assets in Elvis.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (q) A query matching the assets that should be updated
-     * @param (array) (metadata) Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
-     * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $query A query matching the assets that should be updated
+     * @param array $metadata Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
+     * @param bool $async When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
     public function updatebulk($token, $query, $metadata, $async = false)
@@ -207,13 +207,13 @@ class Elvis
      *
      * Move or rename a folder or a single asset.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (source) Either a folderPath or assetPath of the folder or asset to be moved or renamed.
-     * @param (string) (target) The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
-     * @param (string) (folderReplacePolicy) Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
-     * @param (string) (fileReplacePolicy) Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING
-     * @param (string) (filterQuery) When specified, only source assets that match this query will be moved.
-     * @param (bool) (flattenFolders) When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $source Either a folderPath or assetPath of the folder or asset to be moved or renamed.
+     * @param string $target The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
+     * @param string $folderReplacePolicy Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
+     * @param string $fileReplacePolicy Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING
+     * @param string $filterQuery When specified, only source assets that match this query will be moved.
+     * @param bool $flattenFolders When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
     public function move($token, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false)
@@ -239,14 +239,14 @@ class Elvis
      *
      * Copy a folder or a single asset.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (source) Either a folderPath or assetPath of the folder or asset to be moved or renamed.
-     * @param (string) (target) The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
-     * @param (string) (folderReplacePolicy) Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
-     * @param (string) (fileReplacePolicy) Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING
-     * @param (string) (filterQuery) When specified, only source assets that match this query will be moved.
-     * @param (bool) (flattenFolders) When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
-     * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $source Either a folderPath or assetPath of the folder or asset to be moved or renamed.
+     * @param string $target The folderPath or assetPath to which the folder or asset should be moved or renamed. If the parent folder is the same as in the source path, the asset will be renamed, otherwise it will be moved.)
+     * @param string $folderReplacePolicy Policy used when destination folder already exists. Aither AUTO_RENAME (default), MERGE or THROW_EXCEPTION.
+     * @param string $fileReplacePolicy Policy used when destination asset already exists. Either AUTO_RENAME (default), OVERWRITE, OVERWRITE_IF_NEWER, REMOVE_SOURCE, THROW_EXCEPTION or DO_NOTHING
+     * @param string $filterQuery When specified, only source assets that match this query will be moved.
+     * @param bool $flattenFolders When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
+     * @param bool $async When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
     public function copy($token, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
@@ -273,11 +273,11 @@ class Elvis
      *
      * Remove one or more assets. This will remove only assets, no folders.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (q) A query that matches all assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
-     * @param (array) (ids) Array containing the assetId's for the assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
-     * @param (string) (folderPath) The folderPath of the folder to remove. All assets and subfolders will be removed.
-     * @param (bool) (async) When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $query A query that matches all assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
+     * @param array $ids Array containing the assetId's for the assets to be removed. Be careful with this and make sure you test your query using a search call to prevent removing assets that you did not want to be removed.
+     * @param string $folderPath The folderPath of the folder to remove. All assets and subfolders will be removed.
+     * @param bool $async When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
     public function remove($token, $query = null, $ids = null, $folderPath = null, $async = false)
@@ -307,8 +307,8 @@ class Elvis
      *
      * Create one or more folders.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (path) The full folderPath of the folder to be created. This same parameter name can be specified multiple times to create several folders with one call.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $path The full folderPath of the folder to be created. This same parameter name can be specified multiple times to create several folders with one call.
      * @return (object) Information about the newly created folder
      */
     public function createFolder($token, $path)
@@ -324,11 +324,11 @@ class Elvis
      *
      * This call creates a relation of a certain type between two assets in Elvis. For example, to add an asset to a collection.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (relationType) The type of relation to create. Read more at https://elvis.tenderapp.com/kb/content-management/relations
-     * @param (string) (target1Id) The id of the asset on one side of the relation.
-     * @param (string) (target2Id) The id of the asset on one side of the relation.
-     * @param (array) (metadata) A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $relationType The type of relation to create. Read more at https://elvis.tenderapp.com/kb/content-management/relations
+     * @param string $target1Id The id of the asset on one side of the relation.
+     * @param string $target2Id The id of the asset on one side of the relation.
+     * @param array $metadata A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
      * @return (object) Returns an empty 200 OK status.
      */
     public function createRelation($token, $relationType, $target1Id, $target2Id, $metadata = null)
@@ -350,8 +350,8 @@ class Elvis
      *
      * Remove one or more relations between assets.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (array) (relationIds) Array containing relation id's to be removed. To find the relation ids, use a relation search (https://elvis.tenderapp.com/kb/api/rest-search).
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param array $relationIds Array containing relation id's to be removed. To find the relation ids, use a relation search (https://elvis.tenderapp.com/kb/api/rest-search).
      * @return (object) Returns an empty 200 OK status.
      */
     public function removeRelation($token, $relationIds)
@@ -371,10 +371,10 @@ class Elvis
      *
      * Logs an entry in the stats database for usage statistics about assets. A record will be added to the "usage_log" table, see method query stats for details.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (assetId) The id of the asset for which the action is logged.
-     * @param (string) (action) Name of the action that is logged. This must start with "CUSTOM_ACTION_", if it does not, this prefix will be added to the logged action name.
-     * @param (array) ($additionalQueries) Array of additional query parameters that are logged as details for the action.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $assetId The id of the asset for which the action is logged.
+     * @param string $action Name of the action that is logged. This must start with "CUSTOM_ACTION_", if it does not, this prefix will be added to the logged action name.
+     * @param array $additionalQueries Array of additional query parameters that are logged as details for the action.
      * @return (object) This call does not return a value, it only returns an http 200 status OK.
      */
     public function logUsage($token, $assetId, $action, $additionalQueries = array())
@@ -398,10 +398,10 @@ class Elvis
      *
      * Retrieve message bundles from the Elvis server.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (array) (localChain) Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
-     * @param (string) (ifModifiedSince) The date of the last requested cached messages, specified in milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
-     * @param (string) (bundle) The bundle to return, can be either web or acm. The cmn bundle will always be returned combined with the requested bundle.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param array $localeChain Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
+     * @param string $ifModifiedSince The date of the last requested cached messages, specified in milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
+     * @param string $bundle The bundle to return, can be either web or acm. The cmn bundle will always be returned combined with the requested bundle.
      * @return (object) Object containing all keys and messages.
      */
     public function messages($token, $localeChain = null, $ifModifiedSince = null, $bundle = null)
@@ -423,8 +423,8 @@ class Elvis
      *
      * Checks out an asset from the system locking the file for other users.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (assetId) The Elvis id of the asset to be checked out.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $assetId The Elvis id of the asset to be checked out.
      * @return (object) Object containing all keys and messages.
      */
     public function checkout($token, $assetId)
@@ -442,8 +442,8 @@ class Elvis
      *
      * Undo a checkout for a single asset
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (assetId) Elvis id of the asset that was checked out.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $assetId Elvis id of the asset that was checked out.
      * @return (object) Object containing all keys and messages.
      */
     public function undocheckout($token, $assetId)
@@ -459,10 +459,10 @@ class Elvis
      *
      * Download originals or previews as a ZIP file
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (filename) Filename of the zip file to be created
-     * @param (string) (downloadKind) The type of the files that are included in the archive. Possible values are original or preview.
-     * @param (array) (assetIds) Array containing the asset to be included in the Zip file
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $filename Filename of the zip file to be created
+     * @param string $downloadKind The type of the files that are included in the archive. Possible values are original or preview.
+     * @param array $assetIds Array containing the asset to be included in the Zip file
      * @return (object)
      */
     public function zip($token, $filename, $downloadKind, $assetIds)
@@ -485,26 +485,26 @@ class Elvis
      *
      * Create an authKey in Elvis.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (subject) AuthKey subject
-     * @param (string) (validUntil) Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
-     * @param (array) (assetIds) Array of of asset id's to share, do not specify for a pure upload request (requestUpload must be true is this case)
-     * @param (string) (description) AuthKey description that will be shown to receiver of the link.
-     * @param (bool) (downloadOriginal) Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
-     * @param (bool) (downloadPreview) Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
-     * @param (bool) (requestApproval) Request for approval.
-     * @param (bool) (requestUpload) Allow uploading new files, must be true when asset id's is not specified.
-     * @param (string) (containerId) Container asset id which uploaded files are related to. Only relevant when requestUpload=true.
-     * @param (string) (importFolderPath) folderPath where files are uploaded. Required when requestUpload=true.
-     * @param (string) (notifyEmail) Email address to send notifications to when upload or approval is finished. Only relevant when requestUpload=true or requestApproval=true.
-     * @param (string) (sort) Client setting, specify a comma-delimited list of fields to sort the results on. Follows the same behavior as sort in REST - search call
-     * @param (string) (viewMode) Client setting. Possible values 'thumbnail', 'list' or 'mason'.
-     * @param (array) (thumbnailFields) Client setting, array containing list of fieldnames for showing metadata in the thumbnail view.
-     * @param (array) (listviewFields) Client setting, array containing list of fieldnames for showing metadata in the list view.
-     * @param (array) (filmstripFields) Client setting, array containing list of fieldnames for showing metadata in the filmstrip view.
-     * @param (int) (thumbnailZoomLevel) Client setting, thumbnail zoom level in the thumbnail view.
-     * @param (int) (listviewZoomLevel) Client setting, thumbnail zoom level in the list view.
-     * @param (int) (filmstripZoomLevel) Client setting, thumbnail zoom level in the filmstrip view.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $subject AuthKey subject
+     * @param string $validUntil Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
+     * @param array $assetIds Array of of asset id's to share, do not specify for a pure upload request (requestUpload must be true is this case)
+     * @param string $description AuthKey description that will be shown to receiver of the link.
+     * @param bool $downloadOriginal Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
+     * @param bool $downloadPreview Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
+     * @param bool $requestApproval Request for approval.
+     * @param bool $requestUpload Allow uploading new files, must be true when asset id's is not specified.
+     * @param string $containerId Container asset id which uploaded files are related to. Only relevant when requestUpload=true.
+     * @param string $importFolderPath folderPath where files are uploaded. Required when requestUpload=true.
+     * @param string $notifyEmail Email address to send notifications to when upload or approval is finished. Only relevant when requestUpload=true or requestApproval=true.
+     * @param string $sort Client setting, specify a comma-delimited list of fields to sort the results on. Follows the same behavior as sort in REST - search call
+     * @param string $viewMode Client setting. Possible values 'thumbnail', 'list' or 'mason'.
+     * @param array $thumbnailFields Client setting, array containing list of fieldnames for showing metadata in the thumbnail view.
+     * @param array $listviewFields Client setting, array containing list of fieldnames for showing metadata in the list view.
+     * @param array $filmstripFields Client setting, array containing list of fieldnames for showing metadata in the filmstrip view.
+     * @param int $thumbnailZoomLevel Client setting, thumbnail zoom level in the thumbnail view.
+     * @param int $listviewZoomLevel Client setting, thumbnail zoom level in the list view.
+     * @param int $filmstripZoomLevel Client setting, thumbnail zoom level in the filmstrip view.
      * @return (object)
      */
     public function createAuthKey(
@@ -563,26 +563,26 @@ class Elvis
      *
      * Update an authKey in Elvis. With this API call it is possible to update certain properties of an authKey. Please note that it is not possible to add or remove assets from an authKey once it has been created.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (key) The authKey which will be updated.
-     * @param (string) (subject) AuthKey subject
-     * @param (string) (validUntil) Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
-     * @param (string) (description) AuthKey description that will be shown to receiver of the link.
-     * @param (bool) (downloadOriginal) Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
-     * @param (bool) (downloadPreview) Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
-     * @param (bool) (requestApproval) Request for approval.
-     * @param (bool) (requestUpload) Allow uploading new files, must be true when asset id's is not specified.
-     * @param (string) (containerId) Container asset id which uploaded files are related to. Only relevant when requestUpload=true.
-     * @param (string) (importFolderPath) folderPath where files are uploaded. Required when requestUpload=true.
-     * @param (string) (notifyEmail) Email address to send notifications to when upload or approval is finished. Only relevant when requestUpload=true or requestApproval=true.
-     * @param (string) (sort) Client setting, specify a comma-delimited list of fields to sort the results on. Follows the same behavior as sort in REST - search call
-     * @param (string) (viewMode) Client setting. Possible values 'thumbnail', 'list' or 'mason'.
-     * @param (array) (thumbnailFields) Client setting, array containing list of fieldnames for showing metadata in the thumbnail view.
-     * @param (array) (listviewFields) Client setting, array containing list of fieldnames for showing metadata in the list view.
-     * @param (array) (filmstripFields) Client setting, array containing list of fieldnames for showing metadata in the filmstrip view.
-     * @param (int) (thumbnailZoomLevel) Client setting, thumbnail zoom level in the thumbnail view.
-     * @param (int) (listviewZoomLevel) Client setting, thumbnail zoom level in the list view.
-     * @param (int) (filmstripZoomLevel) Client setting, thumbnail zoom level in the filmstrip view.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $key The authKey which will be updated.
+     * @param string $subject AuthKey subject
+     * @param string $validUntil Expiry date, in one of the date formats supported by Elvis. See https://elvis.tenderapp.com/kb/technical/query-syntax for more details
+     * @param string $description AuthKey description that will be shown to receiver of the link.
+     * @param bool $downloadOriginal Allow downloading original files. Setting this to true will automatically force downloadPreview to true as well.
+     * @param bool $downloadPreview Allow viewing and downloading previews. Setting this to false will only show thumbnails and will also force downloadOriginal to false.
+     * @param bool $requestApproval Request for approval.
+     * @param bool $requestUpload Allow uploading new files, must be true when asset id's is not specified.
+     * @param string $containerId Container asset id which uploaded files are related to. Only relevant when requestUpload=true.
+     * @param string $importFolderPath folderPath where files are uploaded. Required when requestUpload=true.
+     * @param string $notifyEmail Email address to send notifications to when upload or approval is finished. Only relevant when requestUpload=true or requestApproval=true.
+     * @param string $sort Client setting, specify a comma-delimited list of fields to sort the results on. Follows the same behavior as sort in REST - search call
+     * @param string $viewMode Client setting. Possible values 'thumbnail', 'list' or 'mason'.
+     * @param array $thumbnailFields Client setting, array containing list of fieldnames for showing metadata in the thumbnail view.
+     * @param array $listviewFields Client setting, array containing list of fieldnames for showing metadata in the list view.
+     * @param array $filmstripFields Client setting, array containing list of fieldnames for showing metadata in the filmstrip view.
+     * @param int $thumbnailZoomLevel Client setting, thumbnail zoom level in the thumbnail view.
+     * @param int $listviewZoomLevel Client setting, thumbnail zoom level in the list view.
+     * @param int $filmstripZoomLevel Client setting, thumbnail zoom level in the filmstrip view.
      * @return (object)
      */
     public function updateAuthKey(
@@ -641,8 +641,8 @@ class Elvis
      *
      * Revoke a previously created authKey.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (array) (keys) list of authKeys.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param array $keys list of authKeys.
      * @return (object) Empty object
      */
     public function revokeAuthKeys($token, $keys)
@@ -663,11 +663,11 @@ class Elvis
      *
      * Performs the actual REST query
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
-     * @param (array) (parameters) All query parameters
-     * @param (array) (metadata) Query parameters that will be converted to JSON array
-     * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+     * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
+     * @param string $endpoint Name of the actual REST API endpoint (login, search, create etc.)
+     * @param array $parameters All query parameters
+     * @param array $metadata Query parameters that will be converted to JSON array
+     * @param string $filename The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
      * @return (object) Query response or exception if something went wrong
      */
     public function query($token = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
@@ -685,10 +685,10 @@ class Elvis
     /**
      * Do the query and check the response for errors and throws necessary exceptions
      *
-     * @param (string) (token) Session ID to be used for the query
-     * @param (string) (uri) URI of the request
-     * @param (string) (endpoint) API endpoint
-     * @param (string) (filename) The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
+     * @param string $token Session ID to be used for the query
+     * @param string $uri URI of the request
+     * @param string $endpoint API endpoint
+     * @param string $filename The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
      * @return (object) Return object response
      *
      */
@@ -710,7 +710,6 @@ class Elvis
 
             // For create we have store file contents and send it as variable Filedata
             case 'create':
-
                 $response = $client->post(
                     $uri,
                     array(
@@ -752,14 +751,9 @@ class Elvis
         }
 
         // The 'zip' endpoint needs to be treated differently to the other endpoints.
-        if ($endpoint == 'zip') {
-            $json_response = $this->createJsonResponse($filename, $response);
-        } else {
-            // Convert JSON response to StdObject
-            $json_response = json_decode((string) $response->getBody());
-        }
+        $json = ($endpoint == 'zip') ? $this->createJsonResponse($filename, $response) : json_decode((string) $response->getBody());
 
-        return $json_response;
+        return $json;
     }
 
     /**
@@ -767,11 +761,10 @@ class Elvis
      *
      * Creates the URL with all the session id's, parameters etc.
      *
-     * @param (string) (token) CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param (string) (endpoint) Name of the actual REST API endpoint (login, search, create etc.)
-     * @param (array) (parameters) All query parameters
-     * @param (array) (metadata) Query parameters that will be converted to JSON array
-     * @return (string) The complete URL of the REST request
+     * @param string $endpoint Name of the actual REST API endpoint (login, search, create etc.)
+     * @param array $parameters All query parameters
+     * @param array $metadata Query parameters that will be converted to JSON array
+     * @return string The complete URL of the REST request
      */
     public function getQueryUrl($endpoint, $parameters, $metadata = null)
     {
@@ -825,9 +818,9 @@ class Elvis
      *
      * Creates the query parameters
      *
-     * @param (array) (parameters) All query parameters
-     * @param (array) (metadata) Query parameters that will be converted to JSON array
-     * @return (array) The query parameters to append
+     * @param array $parameters All query parameters
+     * @param array $metadata Query parameters that will be converted to JSON array
+     * @return array The query parameters to append
      */
     public function formQueryParameters($parameters, $metadata)
     {
@@ -835,7 +828,7 @@ class Elvis
         $query = array();
 
         // Add separator if either parameters or JSON encoded parameter 'metadata' is present and create array to store all parameters + possible metadata
-        if (($parameters !== null || $metadata !== null)) {
+        if (!empty($parameters) || !empty($metadata)) {
             $query['parametersSeparator'] = '?';
         }
 
@@ -854,7 +847,7 @@ class Elvis
         }
 
         // Build query if necessary
-        if (isset($queryParameters)) {
+        if (!empty($queryParameters)) {
             $query['parameters'] = http_build_query($queryParameters);
         }
 
@@ -862,11 +855,11 @@ class Elvis
     }
 
     /**
-     * Create a new repsponse object from the real response object containing
+     * Create a new response object from the real response object containing
      * the correct data to pass to the checkResponse method.
      *
-     * @param $filename
-     * @param $response
+     * @param string $filename
+     * @param \Psr\Http\Message\ResponseInterface $response
      *
      * @return \stdClass
      */
@@ -877,18 +870,13 @@ class Elvis
         $json_response->statusCode = $response->getStatusCode();
         $json_response->reasonPhrase = $response->getReasonPhrase();
 
-        if (!empty($response->errorcode)) {
-            $json_response->errorcode = $response->errorcode;
-            $json_response->message = $response->message;
-        }
-
         return $json_response;
     }
 
     /**
      * Casts the facet selections into the correct Elvis format.
      *
-     * @param (array) facetSelection
+     * @param array $facetSelection
      *
      * @return array
      */

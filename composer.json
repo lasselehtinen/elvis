@@ -26,7 +26,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Lasselehtinen\\Elvis\\": "src/"
+            "LasseLehtinen\\Elvis\\": "src/LasseLehtinen/Elvis"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LasseLehtinen\\Elvis\\Tests\\": "tests"
         }
     },
     "minimum-stability": "stable"

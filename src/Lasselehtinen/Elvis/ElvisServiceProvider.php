@@ -1,4 +1,4 @@
-<?php namespace Lasselehtinen\Elvis;
+<?php namespace LasseLehtinen\Elvis;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -34,7 +34,7 @@ class ElvisServiceProvider extends ServiceProvider
 
         $this->app->booting(function () {
             $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('Elvis', 'Lasselehtinen\Elvis\Facades\Elvis');
+            $loader->alias('Elvis', 'LasseLehtinen\Elvis\Facades\Elvis');
         });
     }
 

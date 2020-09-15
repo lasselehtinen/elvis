@@ -1,6 +1,10 @@
-<?php
+<?php namespace LasseLehtinen\Elvis\Tests;
 
-class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
+use Dotenv\Dotenv;
+use Illuminate\Support\Facades\Config;
+use \LasseLehtinen\Elvis\Facades\Elvis;
+
+class ElvisFunctionalTest extends \Orchestra\Testbench\TestCase
 {
     protected $sessionId;
     protected $assetId;
@@ -8,12 +12,12 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
     // Override package service provider and alias
     protected function getPackageProviders($app)
     {
-        return array('Lasselehtinen\Elvis\ElvisServiceProvider');
+        return array('LasseLehtinen\Elvis\ElvisServiceProvider');
     }
 
     protected function getPackageAliases($app)
     {
-        return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
+        return array('Elvis' => 'LasseLehtinen\Elvis\Facades\Elvis');
     }
 
     public function setUp(): void
@@ -21,7 +25,7 @@ class ElvisFunctionalTest extends Orchestra\Testbench\TestCase
         parent::setUp();
 
         // Load Dotenv
-        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+        $dotenv = Dotenv::createImmutable(__DIR__);
         $dotenv->load();
 
         // Set Laravel configuration parameters

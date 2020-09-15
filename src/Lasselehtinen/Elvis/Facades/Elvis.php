@@ -1,4 +1,4 @@
-<?php namespace Lasselehtinen\Elvis\Facades;
+<?php namespace LasseLehtinen\Elvis\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

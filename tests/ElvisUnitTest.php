@@ -1,16 +1,19 @@
-<?php
+<?php namespace LasseLehtinen\Elvis\Tests;
 
-class ElvisUnitTest extends Orchestra\Testbench\TestCase
+use \LasseLehtinen\Elvis\Facades\Elvis;
+use Illuminate\Support\Facades\Config;
+
+class ElvisUnitTest extends \Orchestra\Testbench\TestCase
 {
     // Override package service provider and alias
     protected function getPackageProviders($app)
     {
-        return array('Lasselehtinen\Elvis\ElvisServiceProvider');
+        return array('LasseLehtinen\Elvis\ElvisServiceProvider');
     }
 
     protected function getPackageAliases($app)
     {
-        return array('Elvis' => 'Lasselehtinen\Elvis\Facades\Elvis');
+        return array('Elvis' => 'LasseLehtinen\Elvis\Facades\Elvis');
     }
 
     /**
