@@ -2,7 +2,7 @@
 
 use Dotenv\Dotenv;
 use Illuminate\Support\Facades\Config;
-use \LasseLehtinen\Elvis\Facades\Elvis;
+use LasseLehtinen\Elvis\Facades\Elvis;
 
 class ElvisFunctionalTest extends \Orchestra\Testbench\TestCase
 {

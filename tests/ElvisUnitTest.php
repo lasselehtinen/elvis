@@ -1,6 +1,6 @@
 <?php namespace LasseLehtinen\Elvis\Tests;
 
-use \LasseLehtinen\Elvis\Facades\Elvis;
+use Elvis;
 use Illuminate\Support\Facades\Config;
 
 class ElvisUnitTest extends \Orchestra\Testbench\TestCase
