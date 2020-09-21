@@ -22,19 +22,7 @@
     "extra": {
         "grumphp": {
             "config-default-path": "vendor/lasselehtinen/laravel-conventions-checker/grumphp.yml"
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "LasseLehtinen\\Elvis\\": "src/LasseLehtinen/Elvis"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "LasseLehtinen\\Elvis\\Tests\\": "tests"
-        }
-    },
-    "extra": {
+        },
         "laravel": {
             "providers": [
                 "LasseLehtinen\\Elvis\\ElvisServiceProvider"
@@ -42,6 +30,16 @@
             "aliases": {
                 "Elvis": "LasseLehtinen\\Elvis\\Facades\\Elvis"
             }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "LasseLehtinen\\Elvis\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LasseLehtinen\\Elvis\\Tests\\": "tests"
         }
     },
     "minimum-stability": "stable"
