@@ -10,14 +10,14 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=8.0",
         "guzzlehttp/guzzle": "~6.0|~7.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
         "orchestra/testbench": "~6.0",
         "vlucas/phpdotenv": "~5.0",
-        "lasselehtinen/laravel-conventions-checker": "^1.6"
+        "lasselehtinen/laravel-conventions-checker": "^3.0"
     },
     "extra": {
         "grumphp": {

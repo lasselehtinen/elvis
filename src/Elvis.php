@@ -19,7 +19,7 @@ class Elvis
      *
      * @return null|string
      */
-    public function login()
+    public function login(): ?string
     {
         // Form login parameters
         $loginParameters = array(
@@ -45,7 +45,7 @@ class Elvis
      * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
      * @return bool True if logout was succesfull
      */
-    public function logout($token)
+    public function logout(string $token): bool
     {
         // Call logout REST API
         $response = Elvis::query($token, 'logout');
@@ -74,7 +74,17 @@ class Elvis
      * @param array $facetSelection Array of facets and values where the facet is the key and the comma-delimited list of values that should be 'selected' for a given facet as the value.
      * @return object List of search results
      */
-    public function search($token, $query, $start = 0, $num = 50, $sort = 'assetCreated-desc', $metadataToReturn = 'all', $appendRequestSecret = false, $facets = null, $facetSelection = [])
+    public function search(
+        string $token,
+        string $query,
+        ?int $start = 0,
+        ?int $num = 50,
+        ?string $sort = 'assetCreated-desc',
+        ?string $metadataToReturn = 'all',
+        ?bool $appendRequestSecret = false,
+        ?string $facets = null,
+        ?array $facetSelection = []
+    ) :object
     {
         // Form search parameters
         $searchParameters = [
@@ -107,7 +117,13 @@ class Elvis
      * @param string $includeExtensions A comma separated list of file extensions to be returned. Specify 'all' to return all file types.
      * @return object An array of folders and assets.
      */
-    public function browse($token, $path, $fromRoot = null, $includeFolders = true, $includeAsset = true, $includeExtensions = '.collection, .dossier, .task')
+    public function browse(
+        string $token,
+        string $path,
+        ?string $fromRoot = null,
+        ?bool $includeFolders = true,
+        ?bool $includeAsset = true,
+        ?string $includeExtensions = '.collection, .dossier, .task')
     {
         // Form browse parameters
         $browseParameters = array(
@@ -132,7 +148,7 @@ class Elvis
      * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
      * @return (object) Profile attached to the session
      */
-    public function profile($token)
+    public function profile(string $token)
     {
         // Call profile REST API
         $response = Elvis::query($token, 'profile');
@@ -150,7 +166,11 @@ class Elvis
      * @param array $metadata Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
      * @return (object) Information about the newly created asset
      */
-    public function create($token, $filename, $metadata = null)
+    public function create(
+        string $token,
+        string $filename,
+        ?array $metadata = null
+    )
     {
 
         $response = Elvis::query($token, 'create', null, $metadata, $filename);
@@ -169,7 +189,12 @@ class Elvis
      * @param array $metadata Array containing the metadata for the asset as an array. Key is the metadata field name and value is the actual value.
      * @return object Elvis returns something strange, TODO investigate it
      */
-    public function update($token, $asset_id, $filename, $metadata)
+    public function update(
+        string $token,
+        string $asset_id,
+        ?string $filename = null,
+        array $metadata
+    )
     {
         // Perform the query
         $response = Elvis::query($token, 'update', ['id' => $asset_id], $metadata, $filename);
@@ -188,7 +213,11 @@ class Elvis
      * @param bool $async When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function updatebulk($token, $query, $metadata, $async = false)
+    public function updatebulk(
+        string $token,
+        string $query,
+        array $metadata,
+        ?bool $async = false)
     {
         // Form updatebulk parameters
         $updateBulk = array(
@@ -216,7 +245,14 @@ class Elvis
      * @param bool $flattenFolders When set to true will move all files from source subfolders to directly below the target folder. This will 'flatten' any subfolder structure.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function move($token, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false)
+    public function move(
+        string $token,
+        string $source,
+        string $target,
+        ?string $folderReplacePolicy = 'AUTO_RENAME',
+        ?string $fileReplacePolicy = 'AUTO_RENAME',
+        ?string $filterQuery = '*:*',
+        ?bool $flattenFolders = false)
     {
         // Form move parameters
         $moveParameters = array(
@@ -249,7 +285,16 @@ class Elvis
      * @param bool $async When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function copy($token, $source, $target, $folderReplacePolicy = 'AUTO_RENAME', $fileReplacePolicy = 'AUTO_RENAME', $filterQuery = '*:*', $flattenFolders = false, $async = false)
+    public function copy(
+        string $token,
+        string $source,
+        string $target,
+        ?string $folderReplacePolicy = 'AUTO_RENAME',
+        ?string $fileReplacePolicy = 'AUTO_RENAME',
+        ?string $filterQuery = '*:*',
+        ?bool $flattenFolders = false,
+        ?bool $async = false
+    )
     {
         // Form copy parameters
         $copyParameters = array(
@@ -280,7 +325,13 @@ class Elvis
      * @param bool $async When true, the process will run asynchronous in the background. The call will return immediate with the processId. By default, the call waits for the process to finish and then returns the processedCount.
      * @return (object) Either processedCount or processId depending if async is true or false
      */
-    public function remove($token, $query = null, $ids = null, $folderPath = null, $async = false)
+    public function remove(
+        string $token,
+        ?string $query = null,
+        ?array $ids = [],
+        ?string $folderPath = null,
+        ?bool $async = false
+    )
     {
         if ($ids !== null && is_array($ids)) {
             $idsCommaSeparated = implode(",", $ids);
@@ -311,7 +362,7 @@ class Elvis
      * @param string $path The full folderPath of the folder to be created. This same parameter name can be specified multiple times to create several folders with one call.
      * @return (object) Information about the newly created folder
      */
-    public function createFolder($token, $path)
+    public function createFolder(string $token, string $path)
     {
         // Perform query
         $response = Elvis::query($token, 'createFolder', ['path' => $path]);
@@ -331,7 +382,12 @@ class Elvis
      * @param array $metadata A JSON encoded object with properties that match Elvis relation metadata field names. This metadata will be set on the relation in Elvis.
      * @return (object) Returns an empty 200 OK status.
      */
-    public function createRelation($token, $relationType, $target1Id, $target2Id, $metadata = null)
+    public function createRelation(
+        string $token,
+        string $relationType,
+        string $target1Id,
+        string $target2Id,
+        ?array $metadata = null)
     {
         // Form createRelation parameters
         $relationParameters = array(
@@ -354,7 +410,7 @@ class Elvis
      * @param array $relationIds Array containing relation id's to be removed. To find the relation ids, use a relation search (https://elvis.tenderapp.com/kb/api/rest-search).
      * @return (object) Returns an empty 200 OK status.
      */
-    public function removeRelation($token, $relationIds)
+    public function removeRelation(string $token, array $relationIds)
     {
         // Form removeRelation parameters
         $relationParameters = array(
@@ -377,7 +433,12 @@ class Elvis
      * @param array $additionalQueries Array of additional query parameters that are logged as details for the action.
      * @return (object) This call does not return a value, it only returns an http 200 status OK.
      */
-    public function logUsage($token, $assetId, $action, $additionalQueries = array())
+    public function logUsage(
+        string $token,
+        string $assetId,
+        string $action,
+        ?array $additionalQueries = []
+    )
     {
         // Form logUsage parameters
         $logUsageParameters = array(
@@ -399,12 +460,17 @@ class Elvis
      * Retrieve message bundles from the Elvis server.
      *
      * @param string $token CSRF token returned by the login function. This is used for further queries towards Elvis
-     * @param array $localeChain Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
+     * @param string|null $localeChain Array containing list of locales, the first supplied locale is leading. If a message is missing for a locale it will fall back to the next locale in the chain for that message.
      * @param string $ifModifiedSince The date of the last requested cached messages, specified in milliseconds since the standard base time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
      * @param string $bundle The bundle to return, can be either web or acm. The cmn bundle will always be returned combined with the requested bundle.
      * @return (object) Object containing all keys and messages.
      */
-    public function messages($token, $localeChain = null, $ifModifiedSince = null, $bundle = null)
+    public function messages(
+        string $token,
+        ?string $localeChain = null,
+        ?string $ifModifiedSince = null,
+        ?string $bundle = null,
+    )
     {
         // Form message parameters
         $messagesParameters = array(
@@ -427,7 +493,7 @@ class Elvis
      * @param string $assetId The Elvis id of the asset to be checked out.
      * @return (object) Object containing all keys and messages.
      */
-    public function checkout($token, $assetId)
+    public function checkout(string $token, string $assetId)
     {
         // Form checkout parameters
         $checkoutParameters = array('assetId' => $assetId);
@@ -446,7 +512,7 @@ class Elvis
      * @param string $assetId Elvis id of the asset that was checked out.
      * @return (object) Object containing all keys and messages.
      */
-    public function undocheckout($token, $assetId)
+    public function undocheckout(string $token, string $assetId)
     {
         // Perform a query
         $response = Elvis::query($token, 'undocheckout', ['assetId' => $assetId]);
@@ -465,7 +531,12 @@ class Elvis
      * @param array $assetIds Array containing the asset to be included in the Zip file
      * @return (object)
      */
-    public function zip($token, $filename, $downloadKind, $assetIds)
+    public function zip(
+        string $token,
+        string $filename,
+        string $downloadKind,
+        array $assetIds
+    )
     {
         // Form zip parameters
         $zipParameters = array(
@@ -508,26 +579,26 @@ class Elvis
      * @return (object)
      */
     public function createAuthKey(
-        $token,
-        $subject,
-        $validUntil,
-        $assetIds = null,
-        $description = null,
-        $downloadOriginal = false,
-        $downloadPreview = false,
-        $requestApproval = false,
-        $requestUpload = false,
-        $containerId = null,
-        $importFolderPath = null,
-        $notifyEmail = null,
-        $sort = null,
-        $viewMode = 'thumbnail',
-        $thumbnailFields = null,
-        $listviewFields = null,
-        $filmstripFields = null,
-        $thumbnailZoomLevel = null,
-        $listviewZoomLevel = null,
-        $filmstripZoomLevel = null
+        string $token,
+        string $subject,
+        string $validUntil,
+        ?array $assetIds = null,
+        ?string $description = null,
+        ?bool $downloadOriginal = false,
+        ?bool $downloadPreview = false,
+        ?bool $requestApproval = false,
+        ?bool $requestUpload = false,
+        ?string $containerId = null,
+        ?string $importFolderPath = null,
+        ?string $notifyEmail = null,
+        ?string $sort = null,
+        ?string $viewMode = 'thumbnail',
+        ?array $thumbnailFields = null,
+        ?array $listviewFields = null,
+        ?array $filmstripFields = null,
+        ?int $thumbnailZoomLevel = null,
+        ?int $listviewZoomLevel = null,
+        ?int $filmstripZoomLevel = null
     ) {
         // Form createAuthKey parameters
         $authKeySettings = array(
@@ -586,26 +657,26 @@ class Elvis
      * @return (object)
      */
     public function updateAuthKey(
-        $token,
-        $key,
-        $subject,
-        $validUntil,
-        $description = null,
-        $downloadOriginal = false,
-        $downloadPreview = false,
-        $requestApproval = false,
-        $requestUpload = false,
-        $containerId = null,
-        $importFolderPath = null,
-        $notifyEmail = null,
-        $sort = null,
-        $viewMode = 'thumbnail',
-        $thumbnailFields = null,
-        $listviewFields = null,
-        $filmstripFields = null,
-        $thumbnailZoomLevel = null,
-        $listviewZoomLevel = null,
-        $filmstripZoomLevel = null
+        string $token,
+        string $key,
+        string $subject,
+        string $validUntil,
+        ?string $description = null,
+        ?bool $downloadOriginal = false,
+        ?bool $downloadPreview = false,
+        ?bool $requestApproval = false,
+        ?bool $requestUpload = false,
+        ?string $containerId = null,
+        ?string $importFolderPath = null,
+        ?string $notifyEmail = null,
+        ?string $sort = null,
+        ?string $viewMode = 'thumbnail',
+        ?array $thumbnailFields = null,
+        ?array $listviewFields = null,
+        ?array $filmstripFields = null,
+        ?int $thumbnailZoomLevel = null,
+        ?int $listviewZoomLevel = null,
+        ?int $filmstripZoomLevel = null
     ) {
         // Form updateAuthKey parameters
         $authKeySettings = array(
@@ -645,7 +716,7 @@ class Elvis
      * @param array $keys list of authKeys.
      * @return (object) Empty object
      */
-    public function revokeAuthKeys($token, $keys)
+    public function revokeAuthKeys(string $token, array $keys)
     {
         // Form revokeAuthKeys parameters
         $authKeys = array(
@@ -670,7 +741,13 @@ class Elvis
      * @param string $filename The file to be created in Elvis. If you do not specify a filename explicitly through the metadata, the filename of the uploaded file will be used.
      * @return (object) Query response or exception if something went wrong
      */
-    public function query($token = null, $endpoint, $parameters = null, $metadata = null, $filename = null)
+    public function query(
+        ?string $token = null,
+        string $endpoint,
+        ?array $parameters = null,
+        ?array $metadata = null,
+        ?string $filename = null
+    )
     {
         // Form query URI
         $uri = $this->getQueryUrl($endpoint, $parameters, $metadata);
@@ -692,7 +769,12 @@ class Elvis
      * @return (object) Return object response
      *
      */
-    public function getResponse($token, $uri, $endpoint, $filename)
+    public function getResponse(
+        ?string $token,
+        string $uri,
+        string $endpoint,
+        ?string $filename
+    )
     {
         // Create new Guzzle client
         $client = new \GuzzleHttp\Client();
@@ -766,7 +848,11 @@ class Elvis
      * @param array $metadata Query parameters that will be converted to JSON array
      * @return string The complete URL of the REST request
      */
-    public function getQueryUrl($endpoint, $parameters, $metadata = null)
+    public function getQueryUrl(
+        string $endpoint,
+        ?array $parameters,
+        ?array $metadata = null
+    )
     {
         // Form basic URI
         $baseUrl = array();
@@ -822,7 +908,10 @@ class Elvis
      * @param array $metadata Query parameters that will be converted to JSON array
      * @return array The query parameters to append
      */
-    public function formQueryParameters($parameters, $metadata)
+    public function formQueryParameters(
+        ?array $parameters,
+        ?array $metadata
+    )
     {
         // Init array
         $query = array();
@@ -859,11 +948,14 @@ class Elvis
      * the correct data to pass to the checkResponse method.
      *
      * @param string $filename
-     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param \GuzzleHttp\Psr7\Response $response
      *
      * @return \stdClass
      */
-    private function createJsonResponse($filename, $response)
+    private function createJsonResponse(
+        string $filename,
+        \GuzzleHttp\Psr7\Response $response
+    )
     {
         $json_response = new \stdClass();
         $json_response->fileName = $filename;
@@ -880,7 +972,7 @@ class Elvis
      *
      * @return array
      */
-    private function rekeyFacetSelection($facetSelection)
+    private function rekeyFacetSelection(array $facetSelection)
     {
         $result = [];
 

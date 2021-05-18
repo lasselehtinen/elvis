@@ -370,11 +370,7 @@ class ElvisFunctionalTest extends \Orchestra\Testbench\TestCase
 
         // Check that have certain known labels
         $this->assertIsObject($messages);
-        $this->assertEquals($messages->{'field_label.creatorEmail'}, 'E-mail');
-
-        // Do a messages query with locale fi_FI
-        $messages = Elvis::messages($this->token, 'fi_FI');
-        $this->assertEquals($messages->{'field_label.creatorEmail'}, 'Sähköposti');
+        $this->assertEquals($messages->{'field_label.cf_volumeIdentifier'}, 'Series');
     }
 
     /**
