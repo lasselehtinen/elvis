@@ -260,9 +260,13 @@ class Elvis
             'target' => $target,
             'folderReplacePolicy' => $folderReplacePolicy,
             'fileReplacePolicy' => $fileReplacePolicy,
-            'filterQuery' => $filterQuery,
             'flattenFolders' => $flattenFolders,
         );
+
+        // Only add filterQuery if non default
+        if ($filterQuery !== '*:*') {
+            $moveParameters['filterQuery'] = $filterQuery;
+        }
 
         // Do the query
         $response = Elvis::query($token, 'move', $moveParameters);
@@ -302,10 +306,14 @@ class Elvis
             'target' => $target,
             'folderReplacePolicy' => $folderReplacePolicy,
             'fileReplacePolicy' => $fileReplacePolicy,
-            'filterQuery' => $filterQuery,
             'flattenFolders' => $flattenFolders,
             'async' => $async,
         );
+
+        // Only add filterQuery if non default
+        if ($filterQuery !== '*:*') {
+            $moveParameters['filterQuery'] = $filterQuery;
+        }
 
         // Do the query
         $response = Elvis::query($token, 'copy', $copyParameters);
