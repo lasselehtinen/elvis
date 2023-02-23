@@ -798,25 +798,6 @@ class Elvis
                 $response = $client->post($uri, ['cookies' => $this->jar]);
                 break;
 
-            // For create we have store file contents and send it as variable Filedata
-            case 'create':
-                $response = $client->post(
-                    $uri,
-                    array(
-                        'cookies' => $this->jar,
-                        'headers' => [
-                            'X-CSRF-TOKEN' => $token,
-                        ],
-                        'multipart' => [
-                            [
-                                'name' => 'Filedata',
-                                'contents' => fopen($filename, 'r'),
-                            ],
-                        ],
-                    )
-                );
-                break;
-
             // For zip we have to store the received file contents
             case 'zip':
                 $filename = $this->createUniqueZipFilename();
@@ -838,6 +819,25 @@ class Elvis
                     ],
                 ]);
                 break;
+        }
+
+        // Add Filedata to create/update if filename is given
+        if (in_array($endpoint, ['create', 'update']) && !is_null($filename)) {
+            $response = $client->post(
+                $uri,
+                array(
+                    'cookies' => $this->jar,
+                    'headers' => [
+                        'X-CSRF-TOKEN' => $token,
+                    ],
+                    'multipart' => [
+                        [
+                            'name' => 'Filedata',
+                            'contents' => fopen($filename, 'r'),
+                        ],
+                    ],
+                )
+            );
         }
 
         // The 'zip' endpoint needs to be treated differently to the other endpoints.
