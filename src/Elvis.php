@@ -788,37 +788,25 @@ class Elvis
         $client = new \GuzzleHttp\Client();
 
         // Form Guzzle query depending on the endpoint
-        switch ($endpoint) {
-            // For login store the authToken in cookie
-            case 'login':
-                // Create Cookie jar
-                $jar = new \GuzzleHttp\Cookie\CookieJar();
-                $this->jar = $jar;
 
-                $response = $client->post($uri, ['cookies' => $this->jar]);
-                break;
+        // Create Cookie jar and store the authToken in cookie
+        if ($endpoint === 'login') {
+            $jar = new \GuzzleHttp\Cookie\CookieJar();
+            $this->jar = $jar;
+            $response = $client->post($uri, ['cookies' => $this->jar]);
+        }
 
-            // For zip we have to store the received file contents
-            case 'zip':
-                $filename = $this->createUniqueZipFilename();
+        // For zip we have to store the received file contents
+        if ($endpoint === 'zip') {
+            $filename = $this->createUniqueZipFilename();
 
-                $response = $client->get($uri, [
-                    'cookies' => $this->jar,
-                    'headers' => [
-                        'X-CSRF-TOKEN' => $token,
-                    ],
-                    'save_to' => $filename,
-                ]);
-                break;
-
-            default:
-                $response = $client->post($uri, [
-                    'cookies' => $this->jar,
-                    'headers' => [
-                        'X-CSRF-TOKEN' => $token,
-                    ],
-                ]);
-                break;
+            $response = $client->get($uri, [
+                'cookies' => $this->jar,
+                'headers' => [
+                    'X-CSRF-TOKEN' => $token,
+                ],
+                'save_to' => $filename,
+            ]);
         }
 
         // Add Filedata to create/update if filename is given
@@ -838,6 +826,16 @@ class Elvis
                     ],
                 )
             );
+        }
+
+        // Default
+        if (!isset($response)) {
+            $response = $client->post($uri, [
+                'cookies' => $this->jar,
+                'headers' => [
+                    'X-CSRF-TOKEN' => $token,
+                ],
+            ]);
         }
 
         // The 'zip' endpoint needs to be treated differently to the other endpoints.
